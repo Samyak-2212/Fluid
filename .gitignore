@@ -1,0 +1,37 @@
+# Fluid — .gitignore
+
+# Build output (all tiers and modes)
+/out/
+
+# Active diagnostic logs — transient, local only
+# Archive logs (debugger/logs/archive/) ARE committed — do not add them here
+/debugger/logs/active/
+
+# Cargo build artifacts
+/target/
+**/target/
+
+# Rust incremental build artifacts
+**/*.pdb
+
+# IDE and editor artifacts
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Agent pack files are committed (they are permanent project history)
+# Do not gitignore pack/
+
+# knowledge_b/ entries are temporary — promoted to knowledge/ then deleted
+# They ARE committed during their lifetime, so do not gitignore knowledge_b/
+
+# Environment files with secrets
+.env
+.env.local
