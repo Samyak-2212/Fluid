@@ -101,7 +101,25 @@ Closed entries are never deleted — they stay in `## Closed` permanently.
 
 ## Pending Claude Review
 
-<!-- No entries -->
+### BUG-008
+- Severity: review
+- Component: rendering/src/device.rs
+- Reported by: c3_rendering_20260428T173700Z
+- Description: wgpu device/adapter/queue initialisation code tagged [NEEDS_REVIEW: claude]; Tier A review required for adapter selection policy, feature set negotiation, and DeviceDescriptor limits.
+- Reproduction: N/A — review task, not a runtime bug.
+- Assigned to: C7 (batch with BUG-009 for Claude review)
+- Status: OPEN
+- Resolution:
+
+### BUG-009
+- Severity: review
+- Component: rendering/src/surface.rs
+- Reported by: c3_rendering_20260428T173700Z
+- Description: wgpu surface/swapchain creation tagged [NEEDS_REVIEW: claude]; Tier A review required for SurfaceConfiguration correctness, present mode selection, and resize path safety.
+- Reproduction: N/A — review task, not a runtime bug.
+- Assigned to: C7 (batch with BUG-008 for Claude review)
+- Status: OPEN
+- Resolution:
 
 ## Prompt/Knowledge Changes
 

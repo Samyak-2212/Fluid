@@ -34,10 +34,13 @@ impl GpuContext {
     /// headless CI environment with no GPU).  Callers must fall back to the
     /// Tier 0 softbuffer path in that case.
     pub async fn init() -> Result<Self, InitError> {
-        let instance = Instance::new(&InstanceDescriptor {
+        let instance = Instance::new(InstanceDescriptor {
             // Let wgpu pick the best available backend for the platform.
             backends: wgpu::Backends::all(),
-            ..Default::default()
+            flags: wgpu::InstanceFlags::default(),
+            memory_budget_thresholds: Default::default(),
+            backend_options: Default::default(),
+            display: Default::default(),
         });
 
         let adapter = instance
@@ -47,7 +50,7 @@ impl GpuContext {
                 force_fallback_adapter: false,
             })
             .await
-            .ok_or(InitError::NoAdapter)?;
+            .map_err(|_| InitError::NoAdapter)?;
 
         let (device, queue) = adapter
             .request_device(
@@ -56,8 +59,9 @@ impl GpuContext {
                     required_features: Features::empty(),
                     required_limits: Limits::downlevel_defaults(),
                     memory_hints: Default::default(),
+                    experimental_features: Default::default(),
+                    trace: wgpu::Trace::Off,
                 },
-                None,
             )
             .await
             .map_err(InitError::DeviceRequest)?;

@@ -1,8 +1,8 @@
-<!-- version: 3 -->
+<!-- version: 4 -->
 # File Structure
 
-Last updated by: codex_generate_readme (session: codex_generate_readme_20260429T0211120530)
-Reflects documentation files created for the workspace root, `core/`, `rendering/`, and component crates. Merged onto version: 2.
+Last updated by: C3 rendering coordinator (session: c3_rendering_20260428T173700Z)
+Reflects rendering/ crate scaffold complete. Merged onto version: 3.
 
 ## Root
 
@@ -55,7 +55,7 @@ All `PROMPT.md` files are Tier A only. Documentation work reads them for crate i
 |------|------|-------|--------|-------|
 | `core/` | dir | C1 | complete | ECS, units, math, time, threading, event bus |
 | `physics_core/` | dir | C4 | pending | Integrators, collision, constraints |
-| `rendering/` | dir | C3 | in_progress | `wgpu`, Tier 0 framebuffer, scene renderer |
+| `rendering/` | dir | C3 | **complete** | wgpu init, Tier 0 CPU rasterizer, scene renderer, HTTP preview; 12 tests pass |
 | `builder/` | dir | C2 | complete | Native build UI |
 | `debugger/` | dir | C6 | pending | Localhost debugger surface |
 | `components/fluid_simulator/` | dir | C5 | pending | SPH and CFD scaffold |
@@ -100,7 +100,7 @@ All `PROMPT.md` files are Tier A only. Documentation work reads them for crate i
 |------|------|-------|--------|-------|
 | `config/builder_flags.toml` | file | C2 | active | Builder flag schema |
 | `config/core.toml` | file | C1 | active | Timestep and Rayon defaults |
-| `config/rendering.toml` | file | C3 | pending | Preview, frame, camera, overlay keys |
+| `config/rendering.toml` | file | C3 | **active** | preview_http_port, frame, camera, debug_overlay keys |
 | `config/physics_core.toml` | file | C4 | pending | Solver and broadphase keys |
 | `config/debugger.toml` | file | C6 | pending | Planned debugger config |
 | `config/fluid_simulator.toml` | file | C5 | pending | Planned fluid config |
@@ -117,6 +117,7 @@ All `PROMPT.md` files are Tier A only. Documentation work reads them for crate i
 | `pack/c1_complete_20260428T080200Z/` | dir | C1 | active | C1 final session context |
 | `pack/c2_complete_20260429T173700Z/` | dir | C2 | active | C2 final session context |
 | `pack/codex_generate_readme_20260429T0211120530/` | dir | docs | active | Documentation-session pack snapshot |
+| `pack/c3_rendering_20260428T173700Z/` | dir | C3 | active | C3 session context and handoff |
 
 ## knowledge_b/
 

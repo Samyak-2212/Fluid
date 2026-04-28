@@ -1,4 +1,4 @@
-<!-- version: 4 -->
+<!-- version: 5 -->
 # Project Manifest
 
 ## Project: Fluid
@@ -14,7 +14,7 @@ Status last updated: 2026-04-27T03:28:47+05:30
 |-------------|--------|--------|-------------|-------|
 | C1 — Core Systems | `core/` | COMPLETE | `[C1_INTERFACES_PUBLISHED]` ✅ `[C1_COMPLETE]` ✅ | All impl done; 26 tests pass |
 | C2 — Build System | `builder/` | COMPLETE | `[C2_COMPLETE]` ✅ | cargo build -p builder: 0 errors, 0 warnings |
-| C3 — Rendering | `rendering/` | BLOCKED | `[C3_COMPLETE]` pending | Waiting on C1 |
+| C3 — Rendering | `rendering/` | COMPLETE | `[C3_COMPLETE]` ✅ | 12 tests pass; BUG-008/009 filed for C7 review |
 | C4 — Physics Core | `physics_core/` | BLOCKED | `[C4_INTERFACES_PUBLISHED]` pending | Waiting on C1 |
 | C5 — Sim Components | `components/` | BLOCKED | `[C5_COMPLETE]` pending | Waiting on C4 |
 | C6 — Debugger | `debugger/` | BLOCKED | `[C6_COMPLETE]` pending | Waiting on C1+C2 |
@@ -76,6 +76,29 @@ C6 (Debugger) and C7 (Quality Gate) may now begin.
 
 ---
 
+[C3_COMPLETE]
+Published by: C3 (session: c3_rendering_20260428T173700Z)
+Timestamp: 2026-04-29T03:05:00+05:30
+All C3 gate criteria verified:
+- rendering/Cargo.toml: wgpu 29.0.1, softbuffer 0.4.8, winit 0.30.13, tiny_http 0.12.0, image 0.25.10 — all versions verified on docs.rs
+- rendering/build.rs: FLUID_TIER → tier_N cfg feature flag emission
+- rendering/src/device.rs: GpuContext headless async init, wgpu 29.x API [NEEDS_REVIEW: claude → BUG-008]
+- rendering/src/surface.rs: RenderSurface swapchain [NEEDS_REVIEW: claude → BUG-009]
+- rendering/src/tier0/mod.rs + renderer.rs: CpuFramebuffer + SoftbufferRenderer, GPU-free test frame, JPEG encode
+- rendering/src/http_preview.rs: tiny_http server port 8080, SharedFrame Arc<Mutex>, /frame.jpg endpoint
+- rendering/src/scene_renderer.rs: SceneRenderer trait (generic W: World), StubRenderer
+- rendering/src/debug_overlay.rs: FrameStats, display string, CPU framebuffer banner stub
+- rendering/src/camera.rs: Camera with core::units::Meters position, glam Mat4 view/projection
+- rendering/src/pipeline/: module scaffold
+- config/rendering.toml: preview_http_port=8080, frame resolution, jpeg_quality, camera defaults
+cargo test -p rendering: 12 passed, 0 failed, EXIT:0
+cargo check --workspace: EXIT:0
+BUG-008 and BUG-009 filed in BUG_POOL.md (Pending Claude Review for C7)
+
+C3 domain closed. File new rendering/ bugs to BUG_POOL.md, assign to C7 for triage.
+
+---
+
 ## Unresolved Items
 
 | Tag | Location | Description | Owner |
@@ -98,6 +121,7 @@ C6 (Debugger) and C7 (Quality Gate) may now begin.
 <!-- Permanent record. Never delete. -->
 
 [RETIRED: c1_core_20260428T022400Z at 2026-04-28T02:24:00+05:30]
+[RETIRED: c3_rendering_20260428T173700Z at 2026-04-29T03:05:00+05:30]
 
 ---
 

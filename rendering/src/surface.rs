@@ -20,7 +20,7 @@ impl<'window> RenderSurface<'window> {
     /// `width` / `height` are the initial framebuffer dimensions in pixels.
     pub fn new(
         ctx: &GpuContext,
-        target: impl raw_window_handle::HasDisplayHandle + raw_window_handle::HasWindowHandle + 'window,
+        target: impl raw_window_handle::HasDisplayHandle + raw_window_handle::HasWindowHandle + Send + Sync + 'window,
         width: u32,
         height: u32,
     ) -> Result<Self, SurfaceError> {

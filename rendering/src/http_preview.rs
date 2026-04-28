@@ -29,15 +29,14 @@ pub fn start_preview_server(port: u16) -> Result<SharedFrame, Box<dyn std::error
     let shared_clone = Arc::clone(&shared);
 
     let addr = format!("0.0.0.0:{port}");
-    let server = Server::http(&addr)
-        .map_err(|e| Box::new(e) as Box<dyn std::error::Error + Send + Sync>)?;
+    let server = Server::http(&addr).map_err(|e| -> Box<dyn std::error::Error + Send + Sync> { e })?;
 
     thread::Builder::new()
         .name("fluid-http-preview".to_string())
         .spawn(move || {
             serve_loop(server, shared_clone);
         })
-        .map_err(|e| Box::new(e) as Box<dyn std::error::Error + Send + Sync>)?;
+        .map_err(|e| -> Box<dyn std::error::Error + Send + Sync> { Box::new(e) })?;
 
     Ok(shared)
 }
@@ -87,18 +86,12 @@ pub fn publish_frame(shared: &SharedFrame, jpeg: Vec<u8>) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::tier0::CpuFramebuffer;
 
     /// Verify that the HTTP server starts on an ephemeral port without panicking.
     #[test]
     fn http_server_starts() {
-        // Use port 0 so the OS assigns a free ephemeral port.
-        // tiny_http 0.12 does not expose the bound port after construction,
-        // so we just verify start_preview_server returns Ok.
-        // NOTE: port 0 is not valid for tiny_http's bind — use a fixed test port
-        // and accept failure if the port is in use in CI.
+        // Use a fixed test port and accept failure if it is already in use in CI.
         let result = start_preview_server(18080);
-        // If the port is already in use this returns Err — acceptable in CI.
         // We just assert it does not panic.
         let _ = result;
     }
@@ -111,13 +104,14 @@ mod tests {
         assert_eq!(stored, b"fake_jpeg_data");
     }
 
+    #[cfg(feature = "tier_0")]
     #[test]
     fn cpu_framebuffer_to_jpeg_round_trip() {
+        use crate::tier0::CpuFramebuffer;
         let mut fb = CpuFramebuffer::new(64, 64);
         fb.fill(0xFF_80_C0_40);
         let jpeg = fb.to_jpeg().expect("JPEG encode should succeed");
         assert!(!jpeg.is_empty());
-        // Publish the frame and verify stored bytes are non-empty.
         let shared: SharedFrame = Arc::new(Mutex::new(Vec::new()));
         publish_frame(&shared, jpeg.clone());
         let stored = shared.lock().unwrap().clone();

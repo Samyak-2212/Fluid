@@ -3,7 +3,7 @@
 //! Camera holds view and projection matrices plus position in SI Meters.
 //! Used by SceneRenderer to produce the view-projection transform.
 
-use fluid_core::math::{Mat4, Vec3};
+use fluid_core::math::Mat4;
 use fluid_core::units::Meters;
 
 /// Perspective camera.
