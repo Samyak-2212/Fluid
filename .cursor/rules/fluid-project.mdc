@@ -1,0 +1,12 @@
+---
+description: Fluid repository-wide agent workflow and safety rules
+globs:
+alwaysApply: true
+---
+
+Follow @AGENTS.md as the canonical repository instruction file.
+
+Additional Cursor-specific notes:
+- Keep this rule aligned with `AGENTS.md`; do not fork the workflow.
+- Read @README.md for the repository entry point.
+- If this rule and `AGENTS.md` ever diverge, follow `AGENTS.md` and update this rule to match.

@@ -1,0 +1,26 @@
+[package]
+name = "builder"
+version.workspace = true
+edition.workspace = true
+
+[features]
+default = []
+tier_0 = []
+tier_1 = []
+tier_2 = []
+tier_3 = []
+
+[[bin]]
+name = "fluid_builder"
+path = "src/main.rs"
+
+[dependencies]
+# Verified on crates.io 2026-04-27
+egui = { version = "0.34.1", features = [] }
+eframe = { version = "0.34.1", default-features = false, features = ["default_fonts", "wgpu"] }
+toml = { version = "1.1.2" }
+serde = { version = "1", features = ["derive"] }
+crossbeam-channel = { version = "0.5.15" }
+
+[package.metadata.fluid]
+requires = []

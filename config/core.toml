@@ -1,0 +1,19 @@
+# config/core.toml — Fluid core system tunables
+#
+# All values here are loaded at runtime by core::time::Timestep::new().
+# Do not hardcode these values in source files.
+# Change here propagates to every component without a recompile.
+
+# Fixed simulation timestep in SI seconds.
+# Default: 1/60 ≈ 0.016666... (60 Hz).
+# Physics fidelity increases with smaller values at the cost of CPU time.
+# Must be > 0.0.
+timestep_seconds = 0.016666666666666666
+
+# Maximum number of fixed-step ticks allowed per frame before the simulation
+# slows down (spiral-of-death guard).  Tier 0 default is conservative.
+max_ticks_per_frame = 8
+
+# Rayon global thread pool size override.
+# 0 = let rayon choose (number of logical CPUs).
+rayon_num_threads = 0

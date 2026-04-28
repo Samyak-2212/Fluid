@@ -1,0 +1,13 @@
+- cargo build -p builder: FAIL, missing `ui` in implementation of `eframe::App for FluidBuilderApp` in `builder/src/main.rs` due to trait signature changes in eframe 0.34.1.
+- cargo run -p builder: FAIL, could not run due to build failure.
+- Files created/modified:
+  - components/thermodynamic_simulator/Cargo.toml
+  - components/thermodynamic_simulator/src/lib.rs
+  - components/fem_structural/Cargo.toml
+  - components/fem_structural/src/lib.rs
+  - bug_pool/BUG_POOL.md
+- Files tagged [NEEDS_REVIEW: claude]:
+  - components/thermodynamic_simulator/src/lib.rs
+  - components/fem_structural/src/lib.rs
+- BUG_POOL entries filed: BUG-002, BUG-003, BUG-004
+- Explicit statement: all frozen files above — not touched. Confirmed frozen.

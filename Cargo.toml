@@ -1,0 +1,45 @@
+[workspace]
+resolver = "2"
+
+members = [
+    "core",
+    "physics_core",
+    "rendering",
+    "builder",
+    "debugger",
+    "components/fluid_simulator",
+    "components/aerodynamic_simulator",
+    "components/motion_force_simulator",
+    "components/thermodynamic_simulator",
+    "components/fem_structural",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/Samyak-2212/Fluid"
+
+# Workspace-level feature declarations.
+# Component features are opt-in only. No component is built by default.
+# Each component's Cargo.toml declares its own feature as default = [].
+[workspace.dependencies]
+# Shared dependency versions — pinned here, referenced via workspace = true in members.
+# Implementation agents: add shared deps here. Do not duplicate version specs across crates.
+glam = { version = "0.32.1" }
+rayon = { version = "1.12.0" }
+
+# --- feature flags defined per component crate, not at workspace level ---
+# Tier features (tier_0..tier_3) are declared in each crate's [features] table.
+# Component selection features (fluid_simulator, etc.) are declared per component crate.
+# All feature flags use snake_case matching the component folder name exactly.
+
+[profile.dev]
+opt-level = 0
+debug = true
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = false

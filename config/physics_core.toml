@@ -1,0 +1,15 @@
+# config/physics_core.toml
+# Physics core tunables — consumed at runtime by the simulation engine.
+# All keys must be documented in knowledge/config_schema.md.
+# Do NOT hardcode these values anywhere in physics_core/src/.
+
+# Maximum number of sequential impulse solver iterations per frame.
+# Higher values improve constraint accuracy at the cost of CPU time.
+# Typical range: 5–20. Default: 10.
+constraint_solver_iterations = 10
+
+# Spatial hash cell size for the broadphase collision grid, in metres.
+# Should be set to approximately 2× the largest object's bounding radius.
+# Smaller cells reduce false positives but increase memory; larger cells
+# increase false positives. Default: 1.0 m.
+broadphase_cell_size = 1.0

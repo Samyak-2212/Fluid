@@ -1,0 +1,42 @@
+[package]
+name = "rendering"
+version.workspace = true
+edition.workspace = true
+
+[features]
+default = []
+tier_0 = []
+tier_1 = []
+tier_2 = []
+tier_3 = []
+debug_overlay = []
+
+[dependencies]
+# C1 core interfaces — scene graph, ECS World trait, SI units, math
+fluid_core = { path = "../core", package = "core" }
+
+# wgpu — sole graphics/compute abstraction for Tiers 0-2
+# Version 29.0.1 verified on docs.rs 2026-04-28
+wgpu = { version = "29.0.1", default-features = false, features = ["wgsl", "dx12", "vulkan", "metal", "gles"] }
+
+# softbuffer — CPU pixel buffer for Tier 0 software rasterizer
+# Version 0.4.8 verified on docs.rs 2026-04-28
+softbuffer = { version = "0.4.8" }
+
+# winit — window handle provider (raw-window-handle 0.6 surface)
+# Version 0.30.13 verified on docs.rs 2026-04-28
+winit = { version = "0.30.13", features = ["rwh_06"] }
+
+# tiny_http — embedded HTTP server for IDX browser preview
+# Version 0.12.0 verified on docs.rs 2026-04-28
+tiny_http = { version = "0.12.0" }
+
+# image — JPEG/PNG encoding for HTTP frame serving
+# Version 0.25.10 verified on docs.rs 2026-04-28
+image = { version = "0.25.10", default-features = false, features = ["jpeg", "png"] }
+
+# raw-window-handle — shared handle abstraction (0.6 required by wgpu 29 and softbuffer 0.4)
+raw-window-handle = { version = "0.6" }
+
+[package.metadata.fluid]
+requires = ["core"]

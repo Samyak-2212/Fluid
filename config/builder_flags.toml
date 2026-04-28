@@ -1,0 +1,56 @@
+[[flag]]
+name        = "FLUID_TIER"
+kind        = "env"
+label       = "Capability Tier"
+description = "Sets the hardware capability tier (0=CPU-only, 1=iGPU, 2=dGPU, 3=HPC). Compile-time only — changing tier requires full recompile."
+type        = "select"
+options     = ["0", "1", "2", "3"]
+default     = "0"
+
+[[flag]]
+name        = "release"
+kind        = "cargo_flag"
+label       = "Release Mode"
+description = "Enables full optimizations and LTO. Slow — do not use for iteration."
+type        = "bool"
+default     = "false"
+
+[[flag]]
+name        = "fluid_simulator"
+kind        = "feature"
+label       = "Fluid Simulator"
+description = "Builds the SPH and grid CFD fluid simulation component."
+type        = "bool"
+default     = "false"
+
+[[flag]]
+name        = "aerodynamic_simulator"
+kind        = "feature"
+label       = "Aerodynamic Simulator"
+description = "Builds the aerodynamics simulation component."
+type        = "bool"
+default     = "false"
+
+[[flag]]
+name        = "motion_force_simulator"
+kind        = "feature"
+label       = "Motion & Force Simulator"
+description = "Builds the rigid/soft body force application, actuators, and joint-driven motion component."
+type        = "bool"
+default     = "false"
+
+[[flag]]
+name        = "thermodynamic_simulator"
+kind        = "feature"
+label       = "Thermodynamic Simulator"
+description = "Builds the thermodynamics simulation component."
+type        = "bool"
+default     = "false"
+
+[[flag]]
+name        = "fem_structural"
+kind        = "feature"
+label       = "FEM Structural"
+description = "Builds the finite element method structural analysis component."
+type        = "bool"
+default     = "false"

@@ -1,0 +1,19 @@
+[package]
+name = "core"
+version.workspace = true
+edition.workspace = true
+
+[features]
+default = []
+tier_0 = []
+tier_1 = []
+tier_2 = []
+tier_3 = []
+
+[dependencies]
+# Shared deps added via workspace = true after version confirmation.
+glam = { workspace = true }
+rayon = { workspace = true }
+
+[package.metadata.fluid]
+requires = []

@@ -1,0 +1,18 @@
+[package]
+name = "motion_force_simulator"
+version.workspace = true
+edition.workspace = true
+
+[features]
+default = []
+tier_0 = []
+tier_1 = []
+tier_2 = []
+tier_3 = []
+
+[dependencies]
+core = { path = "../../core" }
+physics_core = { path = "../../physics_core" }
+
+[package.metadata.fluid]
+requires = ["core", "physics_core"]

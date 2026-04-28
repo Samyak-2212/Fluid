@@ -1,0 +1,30 @@
+# config/rendering.toml
+# Runtime tunables for the rendering crate.
+# All keys must have typed defaults in code — no runtime panics on missing keys.
+# Schema owner: C3 (Rendering Coordinator)
+
+[preview]
+# Port for the IDX HTTP browser preview server.
+# C6 (Debugger) uses a separate port — coordinate to avoid conflicts.
+# Antigravity/IDX preview pane auto-proxies any HTTP server on localhost.
+preview_http_port = 8080
+
+[frame]
+# Default output resolution for headless rendering (e.g., HTTP preview).
+width  = 1280
+height = 720
+
+# JPEG quality for HTTP preview frames (1–100).
+jpeg_quality = 85
+
+[camera]
+# Default perspective camera field-of-view in degrees.
+fov_degrees = 45.0
+# Near clip plane distance in Meters.
+near_clip_meters = 0.1
+# Far clip plane distance in Meters.
+far_clip_meters  = 1000.0
+
+[debug_overlay]
+# Enable overlay in release builds (always on in debug builds).
+force_enabled = false

@@ -1,0 +1,22 @@
+[package]
+name = "physics_core"
+version.workspace = true
+edition.workspace = true
+
+[features]
+default = []
+tier_0 = []
+tier_1 = []
+tier_2 = []
+tier_3 = []
+
+[dependencies]
+# core: SI units, EntityId, ECS traits — consumed, never forked.
+core = { path = "../core" }
+# glam 0.32.1 — verified in workspace Cargo.toml by C1 session.
+glam = { workspace = true }
+# faer: sparse linear solver for FEM (Tier 1+). [UNVERIFIED — confirm on crates.io]
+faer = { version = "0.21", optional = true }
+
+[package.metadata.fluid]
+requires = ["core"]

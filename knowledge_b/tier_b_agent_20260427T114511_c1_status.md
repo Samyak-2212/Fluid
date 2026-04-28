@@ -1,0 +1,22 @@
+# C1 Core Systems Continuation Status
+
+- Files modified:
+  - Cargo.toml (workspace)
+  - core/Cargo.toml
+  - core/src/math/mod.rs
+  - config/core.toml (created)
+  - core/src/time/mod.rs
+  - core/src/threading/rayon_pool.rs (created)
+  - core/src/threading/mod.rs
+  - core/src/memory/mod.rs
+  - core/src/scene/mod.rs
+- Verified crate versions: glam version 0.32.1 confirmed on crates.io/docs.rs. rayon version 1.12.0 confirmed on crates.io/docs.rs.
+- Files tagged [NEEDS_REVIEW: claude]:
+  - core/src/math/mod.rs
+  - core/src/time/mod.rs
+  - core/src/threading/rayon_pool.rs
+- Build result: FAIL
+  - Error: `error[E0038]: the trait \`World\` cannot be made into an object` in `core/src/ecs/traits.rs` because of generic methods.
+- Unresolved items: None
+- BUG_POOL entries filed: BUG-001
+- Explicit statement: core/src/units.rs, ecs/traits.rs, event_bus.rs — not touched
