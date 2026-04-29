@@ -1,4 +1,4 @@
-<!-- version: 6 -->
+<!-- version: 7 -->
 # Project Manifest
 
 ## Project: Fluid
@@ -16,7 +16,7 @@ C3 Last clean checkpoint SHA: d00186b1b1619c22a85f1ed347ca650a055dd019
 | C1 — Core Systems | `core/` | COMPLETE | `[C1_INTERFACES_PUBLISHED]` ✅ `[C1_COMPLETE]` ✅ | All impl done; 26 tests pass |
 | C2 — Build System | `builder/` | COMPLETE | `[C2_COMPLETE]` ✅ | cargo build -p builder: 0 errors, 0 warnings |
 | C3 — Rendering | `rendering/` | COMPLETE | `[C3_COMPLETE]` ✅ | 12 tests pass; BUG-008/009 filed for C7 review |
-| C4 — Physics Core | `physics_core/` | BLOCKED | `[C4_INTERFACES_PUBLISHED]` pending | Waiting on C1 |
+| C4 — Physics Core | `physics_core/` | INTERFACES_PUBLISHED | `[C4_INTERFACES_PUBLISHED]` ✅ | 6 tests pass; full impl pending |
 | C5 — Sim Components | `components/` | BLOCKED | `[C5_COMPLETE]` pending | Waiting on C4 |
 | C6 — Debugger | `debugger/` | BLOCKED | `[C6_COMPLETE]` pending | Waiting on C1+C2 |
 | C7 — Quality Gate | (cross-cutting) | NOT_STARTED | `[C7_COMPLETE]` pending | Can begin setup with C1+C2 |
@@ -100,6 +100,23 @@ C3 domain closed. File new rendering/ bugs to BUG_POOL.md, assign to C7 for tria
 
 ---
 
+[C4_INTERFACES_PUBLISHED]
+Published by: C4 (session: c4_physics_core_20260429T230621Z)
+Timestamp: 2026-04-29T23:06:21+05:30
+Gate files verified:
+- physics_core/src/integrators/traits.rs — Integrator + DerivativeProvider traits, Send+Sync, SI Seconds
+- physics_core/src/collision/traits.rs — ConvexShape, ShapeRef, ContactManifold (depth: Meters), CollisionDetector, Broadphase
+- physics_core/src/constraints/traits.rs — Constraint + ConstraintSolver traits, sequential impulse contract
+- physics_core/Cargo.toml — tier features declared, glam workspace = true (0.32.1 verified), core path dep wired
+- physics_core/build.rs — FLUID_TIER → tier_N cfg flag emission, additive tier inheritance
+- config/physics_core.toml — constraint_solver_iterations=10, broadphase_cell_size=1.0
+cargo test -p physics_core: 6 passed, 0 failed, EXIT:0
+cargo check --workspace: EXIT:0
+
+C5 (Sim Components) may now begin.
+
+---
+
 ## Unresolved Items
 
 | Tag | Location | Description | Owner |
@@ -123,6 +140,7 @@ C3 domain closed. File new rendering/ bugs to BUG_POOL.md, assign to C7 for tria
 
 [RETIRED: c1_core_20260428T022400Z at 2026-04-28T02:24:00+05:30]
 [RETIRED: c3_rendering_20260428T173700Z at 2026-04-29T03:05:00+05:30]
+[RETIRED: c4_physics_core_20260429T230621Z at 2026-04-29T23:06:21+05:30]
 
 ---
 

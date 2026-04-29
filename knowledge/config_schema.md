@@ -1,4 +1,4 @@
-<!-- version: 1 -->
+<!-- version: 2 -->
 # Config Schema
 
 All tunables live in `config/`. Format: TOML.
@@ -92,3 +92,14 @@ Document the new flag's schema here immediately after it is added.
 | Config File | Owner | Status |
 |-------------|-------|--------|
 | `config/builder_flags.toml` | C2 | Created by C2 at initialization |
+| `config/physics_core.toml` | C4 | Created by C4 at interfaces-published gate |
+
+## physics_core.toml — Key Schema
+
+File: `config/physics_core.toml`
+All values are loaded at runtime. Typed defaults in code — no runtime panics on missing keys.
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `constraint_solver_iterations` | integer | `10` | Maximum sequential impulse solver iterations per frame. Higher = more accurate, more CPU. Typical range: 5–20. |
+| `broadphase_cell_size` | float | `1.0` | Spatial hash cell size in metres. Set to ≈ 2× largest object bounding radius. Smaller cells reduce false positives but increase memory. |

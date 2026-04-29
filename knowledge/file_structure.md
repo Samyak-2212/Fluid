@@ -1,8 +1,8 @@
-<!-- version: 4 -->
+<!-- version: 5 -->
 # File Structure
 
-Last updated by: C3 rendering coordinator (session: c3_rendering_20260428T173700Z)
-Reflects rendering/ crate scaffold complete. Merged onto version: 3.
+Last updated by: C4 physics core coordinator (session: c4_physics_core_20260429T230621Z)
+Reflects physics_core/ trait scaffold and config complete. Merged onto version: 4.
 
 ## Root
 
@@ -54,7 +54,7 @@ All `PROMPT.md` files are Tier A only. Documentation work reads them for crate i
 | Path | Type | Owner | Status | Notes |
 |------|------|-------|--------|-------|
 | `core/` | dir | C1 | complete | ECS, units, math, time, threading, event bus |
-| `physics_core/` | dir | C4 | pending | Integrators, collision, constraints |
+| `physics_core/` | dir | C4 | **interfaces published** | integrators/traits.rs, collision/traits.rs, constraints/traits.rs, rigid_body/, soft_body/ (tier_1); build.rs; 6 tests pass |
 | `rendering/` | dir | C3 | **complete** | wgpu init, Tier 0 CPU rasterizer, scene renderer, HTTP preview; 12 tests pass |
 | `builder/` | dir | C2 | complete | Native build UI |
 | `debugger/` | dir | C6 | pending | Localhost debugger surface |
@@ -101,7 +101,7 @@ All `PROMPT.md` files are Tier A only. Documentation work reads them for crate i
 | `config/builder_flags.toml` | file | C2 | active | Builder flag schema |
 | `config/core.toml` | file | C1 | active | Timestep and Rayon defaults |
 | `config/rendering.toml` | file | C3 | **active** | preview_http_port, frame, camera, debug_overlay keys |
-| `config/physics_core.toml` | file | C4 | pending | Solver and broadphase keys |
+| `config/physics_core.toml` | file | C4 | **active** | constraint_solver_iterations=10, broadphase_cell_size=1.0 |
 | `config/debugger.toml` | file | C6 | pending | Planned debugger config |
 | `config/fluid_simulator.toml` | file | C5 | pending | Planned fluid config |
 | `config/aerodynamic_simulator.toml` | file | C5 | pending | Planned aero config |
@@ -118,6 +118,7 @@ All `PROMPT.md` files are Tier A only. Documentation work reads them for crate i
 | `pack/c2_complete_20260429T173700Z/` | dir | C2 | active | C2 final session context |
 | `pack/codex_generate_readme_20260429T0211120530/` | dir | docs | active | Documentation-session pack snapshot |
 | `pack/c3_rendering_20260428T173700Z/` | dir | C3 | active | C3 session context and handoff |
+| `pack/c4_physics_core_20260429T230621Z/` | dir | C4 | active | C4 interfaces-published session context and handoff |
 
 ## knowledge_b/
 
