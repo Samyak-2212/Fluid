@@ -1,8 +1,8 @@
-<!-- version: 5 -->
+<!-- version: 6 -->
 # File Structure
 
-Last updated by: C4 physics core coordinator (session: c4_physics_core_20260429T230621Z)
-Reflects physics_core/ trait scaffold and config complete. Merged onto version: 4.
+Last updated by: C4 physics core coordinator (session: c4_physics_core_continuation_20260429T164538Z)
+Reflects physics_core/ full implementation complete. Merged onto version: 5.
 
 ## Root
 
@@ -54,7 +54,7 @@ All `PROMPT.md` files are Tier A only. Documentation work reads them for crate i
 | Path | Type | Owner | Status | Notes |
 |------|------|-------|--------|-------|
 | `core/` | dir | C1 | complete | ECS, units, math, time, threading, event bus |
-| `physics_core/` | dir | C4 | **interfaces published** | integrators/traits.rs, collision/traits.rs, constraints/traits.rs, rigid_body/, soft_body/ (tier_1); build.rs; 6 tests pass |
+| `physics_core/` | dir | C4 | **complete** | integrators, collision (GJK/EPA), constraints, rigid_body implemented; 22 tests pass |
 | `rendering/` | dir | C3 | **complete** | wgpu init, Tier 0 CPU rasterizer, scene renderer, HTTP preview; 12 tests pass |
 | `builder/` | dir | C2 | complete | Native build UI |
 | `debugger/` | dir | C6 | pending | Localhost debugger surface |

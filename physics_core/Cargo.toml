@@ -15,8 +15,8 @@ tier_3 = []
 core = { path = "../core" }
 # glam 0.32.1 — verified in workspace Cargo.toml by C1 session.
 glam = { workspace = true }
-# faer: sparse linear solver for FEM (Tier 1+). [UNVERIFIED — confirm on crates.io]
-faer = { version = "0.21", optional = true }
+# faer: sparse linear solver for FEM (Tier 1+). Verified on crates.io.
+faer = { version = "0.24", optional = true }
 
 [package.metadata.fluid]
 requires = ["core"]

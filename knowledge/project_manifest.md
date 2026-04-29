@@ -1,11 +1,12 @@
-<!-- version: 7 -->
+<!-- version: 9 -->
 # Project Manifest
 
 ## Project: Fluid
 Language: Rust (edition 2021+)
 Root session: root_coordinator_20260427T032847Z
-Status last updated: 2026-04-29T03:05:00+05:30
+Status last updated: 2026-04-29T23:06:21+05:30
 C3 Last clean checkpoint SHA: d00186b1b1619c22a85f1ed347ca650a055dd019
+C4 Last clean checkpoint SHA: 7aa494c26ccc3e8de729844d90464e8323d407f1
 
 ---
 
@@ -16,8 +17,8 @@ C3 Last clean checkpoint SHA: d00186b1b1619c22a85f1ed347ca650a055dd019
 | C1 — Core Systems | `core/` | COMPLETE | `[C1_INTERFACES_PUBLISHED]` ✅ `[C1_COMPLETE]` ✅ | All impl done; 26 tests pass |
 | C2 — Build System | `builder/` | COMPLETE | `[C2_COMPLETE]` ✅ | cargo build -p builder: 0 errors, 0 warnings |
 | C3 — Rendering | `rendering/` | COMPLETE | `[C3_COMPLETE]` ✅ | 12 tests pass; BUG-008/009 filed for C7 review |
-| C4 — Physics Core | `physics_core/` | INTERFACES_PUBLISHED | `[C4_INTERFACES_PUBLISHED]` ✅ | 6 tests pass; full impl pending |
-| C5 — Sim Components | `components/` | BLOCKED | `[C5_COMPLETE]` pending | Waiting on C4 |
+| C4 — Physics Core | `physics_core/` | COMPLETE | `[C4_INTERFACES_PUBLISHED]` ✅ `[C4_COMPLETE]` ✅ | 22 tests pass; full impl complete |
+| C5 — Sim Components | `components/` | BLOCKED | `[C5_COMPLETE]` pending | Waiting on C4 completion |
 | C6 — Debugger | `debugger/` | BLOCKED | `[C6_COMPLETE]` pending | Waiting on C1+C2 |
 | C7 — Quality Gate | (cross-cutting) | NOT_STARTED | `[C7_COMPLETE]` pending | Can begin setup with C1+C2 |
 | Root | (this file) | IN_PROGRESS | `[ROOT_COMPLETE]` pending | Writing final manifest |
@@ -163,5 +164,20 @@ C5 (Sim Components) may now begin.
 - C5 oneAPI `[UNRESOLVED]` must be resolved before `[C5_COMPLETE]` is published.
 - C7 must confirm all `[RETIRED]` entries have a corresponding `handoff_prompt.md` in `pack/`.
 - knowledge/ files must not be written without incrementing the `<!-- version: N -->` counter.
+
+[C4_COMPLETE]
+Published by: C4 (session: c4_physics_core_continuation_20260429T164538Z)
+Timestamp: 2026-04-29T16:45:38+05:30
+All C4 post-gate work verified:
+- physics_core/src/integrators/velocity_verlet.rs: implemented, energy conservation test passes
+- physics_core/src/integrators/leap_frog.rs: implemented, consumed by C5
+- physics_core/src/collision/gjk.rs: implemented, tested
+- physics_core/src/collision/epa.rs: implemented, penetration depth accurate
+- physics_core/src/constraints/sequential_impulse.rs: implemented, tested
+- physics_core/Cargo.toml: faer 0.24 verified, [UNVERIFIED] removed
+- config/physics_core.toml: dynamically consumed
+cargo test -p physics_core: 22 passed, 0 failed, EXIT:0
+
+C5 (Sim Components) may now proceed fully. C4 domain closed. File new physics_core/ bugs to BUG_POOL.md, assign to C7 for triage.
 
 [ROOT_COMPLETE]
