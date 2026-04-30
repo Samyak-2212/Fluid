@@ -1,4 +1,4 @@
-<!-- version: 12 -->
+<!-- version: 13 -->
 # Project Manifest
 
 ## Project: Fluid
@@ -7,7 +7,7 @@ Root session: root_coordinator_20260427T032847Z
 Status last updated: 2026-04-30T06:48:00+05:30
 C3 Last clean checkpoint SHA: d00186b1b1619c22a85f1ed347ca650a055dd019
 C4 Last clean checkpoint SHA: a4018a7aa5dd7d52baa3c0b77b8d9d1e11a6a276
-C5 Last clean checkpoint SHA: [PENDING — written after git commit below]
+C5 Last clean checkpoint SHA: d710739d168dd34844b8aa09529f8db98f7b9a59
 
 ---
 
