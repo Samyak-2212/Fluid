@@ -1,8 +1,8 @@
-<!-- version: 6 -->
+<!-- version: 8 -->
 # File Structure
 
-Last updated by: C4 physics core coordinator (session: c4_physics_core_continuation_20260429T164538Z)
-Reflects physics_core/ full implementation complete. Merged onto version: 5.
+Last updated by: C5 sim components coordinator (session: c5_impl_20260429T214423Z)
+Reflects C5 full implementation: SPH, CFD, aerodynamics, thermodynamics, FEM, force actuators. Merged onto version: 7.
 
 ## Root
 
@@ -21,13 +21,13 @@ All files in `knowledge/` are Tier A authored and maintained. Files carry a `<!-
 
 | Path | Type | Owner | Status | Notes |
 |------|------|-------|--------|-------|
-| `knowledge/capability_tiers.md` | file | Root | active | version: 1 |
+| `knowledge/capability_tiers.md` | file | Root | active | version: 2 (oneAPI resolved: infeasible) |
 | `knowledge/physics_contract.md` | file | Root | active | version: 1 |
 | `knowledge/dependency_graph.md` | file | Root | active | version: 1 |
 | `knowledge/model_tier_policy.md` | file | Root | active | version: 1 |
 | `knowledge/config_schema.md` | file | Root | active | version: 1 |
-| `knowledge/file_structure.md` | file | Root/C2/docs | active | This file version: 3 |
-| `knowledge/project_manifest.md` | file | Root | active | version: 4, C1 and C2 complete |
+| `knowledge/file_structure.md` | file | Root/C2/C5 | active | This file version: 8 |
+| `knowledge/project_manifest.md` | file | Root | active | version: 12, C5 complete |
 
 ## bug_pool/
 
@@ -46,6 +46,7 @@ All `PROMPT.md` files are Tier A only. Documentation work reads them for crate i
 | `coordinators/rendering/PROMPT.md` | file | Root | active | C3 specification |
 | `coordinators/physics_core/PROMPT.md` | file | Root | active | C4 specification |
 | `coordinators/sim_components/PROMPT.md` | file | Root | active | C5 specification |
+| `coordinators/sim_components/*/PROMPT.md` | file | C5 | active | Sub-coordinator prompts (7 total) |
 | `coordinators/debugger/PROMPT.md` | file | Root | active | C6 specification |
 | `coordinators/quality_gate/PROMPT.md` | file | Root | active | C7 specification |
 
@@ -58,11 +59,11 @@ All `PROMPT.md` files are Tier A only. Documentation work reads them for crate i
 | `rendering/` | dir | C3 | **complete** | wgpu init, Tier 0 CPU rasterizer, scene renderer, HTTP preview; 12 tests pass |
 | `builder/` | dir | C2 | complete | Native build UI |
 | `debugger/` | dir | C6 | pending | Localhost debugger surface |
-| `components/fluid_simulator/` | dir | C5 | pending | SPH and CFD scaffold |
-| `components/aerodynamic_simulator/` | dir | C5 | pending | Aerodynamics scaffold |
-| `components/motion_force_simulator/` | dir | C5 | pending | Force and actuator scaffold |
-| `components/thermodynamic_simulator/` | dir | C5 | pending | Minimal `init()` stub |
-| `components/fem_structural/` | dir | C5 | pending | Minimal `init()` stub |
+| `components/fluid_simulator/` | dir | C5 | **implemented** | SPH (Wendland C2 + XSPH + Leap-Frog) + CFD (Chorin projection) + GPU FFI trait |
+| `components/aerodynamic_simulator/` | dir | C5 | **implemented** | Thin-aerofoil lift/drag model (C_L, C_D polar) |
+| `components/motion_force_simulator/` | dir | C5 | **implemented** | Gravity, spring-damper, hydraulic actuator, electric motor, joints |
+| `components/thermodynamic_simulator/` | dir | C5 | **implemented** | Lumped capacitance + RK4 + Strang operator splitting |
+| `components/fem_structural/` | dir | C5 | **implemented** | Euler-Bernoulli beam, Newmark-Beta dynamic solver, faer dense LU |
 
 ## Documentation Files
 
@@ -103,11 +104,11 @@ All `PROMPT.md` files are Tier A only. Documentation work reads them for crate i
 | `config/rendering.toml` | file | C3 | **active** | preview_http_port, frame, camera, debug_overlay keys |
 | `config/physics_core.toml` | file | C4 | **active** | constraint_solver_iterations=10, broadphase_cell_size=1.0 |
 | `config/debugger.toml` | file | C6 | pending | Planned debugger config |
-| `config/fluid_simulator.toml` | file | C5 | pending | Planned fluid config |
-| `config/aerodynamic_simulator.toml` | file | C5 | pending | Planned aero config |
-| `config/thermodynamic_simulator.toml` | file | C5 | pending | Planned thermal config |
-| `config/fem_structural.toml` | file | C5 | pending | Planned FEM config |
-| `config/motion_force_simulator.toml` | file | C5 | pending | Planned motion config |
+| `config/fluid_simulator.toml` | file | C5 | active | Created by C5 |
+| `config/aerodynamic_simulator.toml` | file | C5 | active | Created by C5 |
+| `config/thermodynamic_simulator.toml` | file | C5 | active | Created by C5 |
+| `config/fem_structural.toml` | file | C5 | active | Created by C5 |
+| `config/motion_force_simulator.toml` | file | C5 | active | Created by C5 |
 
 ## pack/
 
@@ -119,6 +120,9 @@ All `PROMPT.md` files are Tier A only. Documentation work reads them for crate i
 | `pack/codex_generate_readme_20260429T0211120530/` | dir | docs | active | Documentation-session pack snapshot |
 | `pack/c3_rendering_20260428T173700Z/` | dir | C3 | active | C3 session context and handoff |
 | `pack/c4_physics_core_20260429T230621Z/` | dir | C4 | active | C4 interfaces-published session context and handoff |
+| `pack/c5_scaffold_20260429T213456Z/` | dir | C5 | active | C5 scaffold session context |
+| `pack/c5_impl_20260429T214423Z/` | dir | C5 | active | C5 implementation checkpoint (soft retire) |
+| `pack/c5_complete_20260430T064800Z/` | dir | C5 | active | C5 gate-verified completion pack |
 
 ## knowledge_b/
 

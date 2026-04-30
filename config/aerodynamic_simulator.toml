@@ -1,0 +1,10 @@
+# aerodynamic_simulator component configuration
+
+# Default air density in kg/m^3 (sea level standard)
+air_density = 1.225
+
+# Dynamic viscosity of air in Pa*s (N*s/m^2)
+air_viscosity = 1.81e-5
+
+# Default reference area for aerodynamic bodies in m^2
+default_reference_area = 1.0

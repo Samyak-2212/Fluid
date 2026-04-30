@@ -9,10 +9,12 @@ tier_0 = []
 tier_1 = []
 tier_2 = []
 tier_3 = []
+debug_overlay = []
 
 [dependencies]
 core = { path = "../../core" }
 physics_core = { path = "../../physics_core" }
+glam = { workspace = true }
 
 [package.metadata.fluid]
-requires = ["core", "physics_core"]
+requires = []

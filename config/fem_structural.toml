@@ -1,0 +1,13 @@
+# fem_structural component configuration
+
+# Default Young's modulus in Pascals (e.g., typical rubber/soft material)
+default_youngs_modulus = 1e6
+
+# Default Poisson's ratio
+default_poissons_ratio = 0.3
+
+# Maximum Newton-Raphson iterations for nonlinear solver (Tier 2)
+max_newton_iterations = 20
+
+# Solver error tolerance for convergence
+solver_tolerance = 1e-6

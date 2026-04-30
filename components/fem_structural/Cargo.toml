@@ -9,10 +9,16 @@ tier_0 = []
 tier_1 = []
 tier_2 = []
 tier_3 = []
+debug_overlay = []
 
 [dependencies]
 core = { path = "../../core" }
-physics_core = { path = "../../physics_core" }
+physics_core = { path = "../../physics_core", features = ["tier_1"] }
+motion_force_simulator = { path = "../motion_force_simulator" }
+glam = { workspace = true }
+# faer 0.24 — sparse linear algebra for FEM system assembly and solve.
+# Verified on docs.rs: https://docs.rs/faer/0.24.0
+faer = "0.24"
 
 [package.metadata.fluid]
-requires = ["core", "physics_core"]
+requires = ["motion_force_simulator"]

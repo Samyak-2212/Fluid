@@ -1,0 +1,10 @@
+# thermodynamic_simulator component configuration
+
+# Default specific heat capacity in J/(kg*K)
+default_heat_capacity = 1000.0
+
+# Default thermal conductivity in W/(m*K)
+default_thermal_conductivity = 0.026
+
+# Ambient temperature in Kelvin
+ambient_temperature = 293.15

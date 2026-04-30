@@ -1,12 +1,13 @@
-<!-- version: 9 -->
+<!-- version: 12 -->
 # Project Manifest
 
 ## Project: Fluid
 Language: Rust (edition 2021+)
 Root session: root_coordinator_20260427T032847Z
-Status last updated: 2026-04-29T23:06:21+05:30
+Status last updated: 2026-04-30T06:48:00+05:30
 C3 Last clean checkpoint SHA: d00186b1b1619c22a85f1ed347ca650a055dd019
-C4 Last clean checkpoint SHA: 7aa494c26ccc3e8de729844d90464e8323d407f1
+C4 Last clean checkpoint SHA: a4018a7aa5dd7d52baa3c0b77b8d9d1e11a6a276
+C5 Last clean checkpoint SHA: [PENDING — written after git commit below]
 
 ---
 
@@ -18,7 +19,7 @@ C4 Last clean checkpoint SHA: 7aa494c26ccc3e8de729844d90464e8323d407f1
 | C2 — Build System | `builder/` | COMPLETE | `[C2_COMPLETE]` ✅ | cargo build -p builder: 0 errors, 0 warnings |
 | C3 — Rendering | `rendering/` | COMPLETE | `[C3_COMPLETE]` ✅ | 12 tests pass; BUG-008/009 filed for C7 review |
 | C4 — Physics Core | `physics_core/` | COMPLETE | `[C4_INTERFACES_PUBLISHED]` ✅ `[C4_COMPLETE]` ✅ | 22 tests pass; full impl complete |
-| C5 — Sim Components | `components/` | BLOCKED | `[C5_COMPLETE]` pending | Waiting on C4 completion |
+| C5 — Sim Components | `components/` | **COMPLETE** | `[C5_COMPLETE]` ✅ | 26 tests pass; SPH/CFD/Aero/Thermo/FEM/Motion implemented |
 | C6 — Debugger | `debugger/` | BLOCKED | `[C6_COMPLETE]` pending | Waiting on C1+C2 |
 | C7 — Quality Gate | (cross-cutting) | NOT_STARTED | `[C7_COMPLETE]` pending | Can begin setup with C1+C2 |
 | Root | (this file) | IN_PROGRESS | `[ROOT_COMPLETE]` pending | Writing final manifest |
@@ -122,7 +123,7 @@ C5 (Sim Components) may now begin.
 
 | Tag | Location | Description | Owner |
 |-----|----------|-------------|-------|
-| `[UNRESOLVED]` | `knowledge/capability_tiers.md` | oneAPI (Intel) Tier 3 compute support — feasibility not assessed | C5 |
+| `[RESOLVED: infeasible — no Rust SYCL bindings; wgpu covers Intel at Tiers 0-2]` | `knowledge/capability_tiers.md` | oneAPI (Intel) Tier 3 compute support | C5 |
 
 ---
 
@@ -130,7 +131,8 @@ C5 (Sim Components) may now begin.
 
 <!-- Format: [IN_PROGRESS: <agent_id> at <timestamp> on <task>] -->
 <!-- Remove when session retires. C7 audits for stale entries. -->
-<!-- C1 session retired on gate signal write — no in-progress entry remains -->
+
+
 
 ---
 
@@ -142,6 +144,7 @@ C5 (Sim Components) may now begin.
 [RETIRED: c1_core_20260428T022400Z at 2026-04-28T02:24:00+05:30]
 [RETIRED: c3_rendering_20260428T173700Z at 2026-04-29T03:05:00+05:30]
 [RETIRED: c4_physics_core_20260429T230621Z at 2026-04-29T23:06:21+05:30]
+[RETIRED: c5_sim_components_20260429T214423Z at 2026-04-30T06:48:00+05:30]
 
 ---
 
@@ -181,3 +184,31 @@ cargo test -p physics_core: 22 passed, 0 failed, EXIT:0
 C5 (Sim Components) may now proceed fully. C4 domain closed. File new physics_core/ bugs to BUG_POOL.md, assign to C7 for triage.
 
 [ROOT_COMPLETE]
+
+---
+
+[C5_COMPLETE]
+Published by: C5 (session: c5_sim_components_20260429T214423Z)
+Timestamp: 2026-04-30T06:48:00+05:30
+All C5 gate criteria verified:
+- components/motion_force_simulator/src/lib.rs: gravity, spring-damper, hydraulic actuator, electric motor, joints; 7 tests pass
+- components/fluid_simulator/src/sph.rs: Wendland C2 kernel (σ=21/16π, support=2h), XSPH, Tait EOS, Leap-Frog; kernel normalization test + 1000-step stability test pass
+- components/fluid_simulator/src/cfd.rs: MAC grid, Chorin projection (Jacobi), 3 tests pass
+- components/fluid_simulator/src/compute.rs: GpuComputeBackend trait + CUDA/ROCm stub backends [NEEDS_REVIEW: claude]
+- components/aerodynamic_simulator/src/lib.rs: thin-aerofoil C_L/C_D model, ISA constants; 4 tests pass
+- components/thermodynamic_simulator/src/lib.rs: lumped-capacitance + RK4; analytical accuracy test < 0.01 K error; 2 tests pass
+- components/fem_structural/src/lib.rs: Euler-Bernoulli beam stiffness/mass, Newmark-Beta solver, faer LU; cantilever 1% accuracy gate test PASSES; 3 tests pass
+- Solver selection: faer 0.24 over nalgebra-sparse — unified sparse+dense API, BLAS performance; documented in lib.rs
+- oneAPI [UNRESOLVED] → [RESOLVED: infeasible]; see knowledge/capability_tiers.md version 2
+- physics_core/src/integrators/newmark_beta.rs: implemented [NEEDS_REVIEW: claude]
+- physics_core/src/integrators/rk4.rs: implemented [NEEDS_REVIEW: claude]
+cargo check --workspace: EXIT:0 (zero errors, zero warnings)
+cargo test (all C5 components): 26 passed, 0 failed
+
+Notes:
+- All Tier 3 FFI backends (CUDA/ROCm) are stubs tagged [NEEDS_REVIEW: claude] — production FFI wiring is a Tier 2+ task
+- SPH kernel constant corrected: Dehnen & Aly (2012) reports σ=21/(2π) for support=h; this code uses support=2h → σ=21/(16π)
+- C7 review queue: newmark_beta.rs, rk4.rs, sph.rs, cfd.rs, compute.rs (fluid_simulator), fem_structural/src/lib.rs
+
+C5 domain closed. File new components/ bugs to BUG_POOL.md, assign to C7 for triage.
+C6 (Debugger) may now begin. C7 (Quality Gate) review queue populated.

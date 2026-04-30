@@ -1,4 +1,4 @@
-<!-- version: 1 -->
+<!-- version: 2 -->
 # Capability Tiers
 
 Every feature in the Fluid framework must declare its minimum tier.
@@ -30,10 +30,19 @@ For Tier 3 only, CUDA (Nvidia) and ROCm/HIP (AMD) compute are supported via dire
 These are owned exclusively by the C5 Simulation Components Coordinator and must be isolated behind
 a trait interface. No other crate in the workspace may have a direct dependency on CUDA or ROCm.
 
-oneAPI (Intel) support is `[UNRESOLVED]` — C5 must assess feasibility, define success/failure
-criteria, document a fallback plan, and record findings in `knowledge/project_manifest.md` before
-implementing. The `[UNRESOLVED]` tag must be replaced with either `[RESOLVED: adopted]` or
-`[RESOLVED: infeasible — <reason>]` upon completion.
+oneAPI (Intel) support is `[RESOLVED: infeasible — no mature Rust SYCL bindings exist]`.
+
+Rationale (assessed by C5, session c5_sim_components_20260429T214423Z):
+- SYCL is a C++ single-source programming model; kernels and host code are compiled together.
+- Rust `extern "C"` FFI cannot directly call template-heavy C++ SYCL APIs.
+- `bindgen` cannot handle the template-heavy C++ headers used by the SYCL runtime.
+- No production-ready crate on crates.io provides SYCL bindings as of 2026-04.
+- Intel GPUs (Arc, HD) are fully covered by `wgpu` at Tiers 0–2 via Vulkan and OpenGL backends.
+- If Intel-specific compute is re-evaluated in future, `opencl-sys` (OpenCL C API, crates.io)
+  is the viable path — OpenCL is exposed by every Intel oneAPI runtime installation.
+
+Fallback: Intel hardware at Tier 3 uses the `wgpu` compute backend (Tier 2 ceiling for Intel).
+This is acceptable; Tier 3 HPC targets are CUDA (Nvidia) and ROCm/HIP (AMD) only.
 
 Any deviation from `wgpu` for Tiers 0–2 must be justified in `knowledge/project_manifest.md`.
 

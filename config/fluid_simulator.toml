@@ -1,0 +1,10 @@
+# fluid_simulator component configuration
+
+# Maximum number of particles in SPH mode for Tier 0
+sph_particle_cap = 10000
+
+# Base grid resolution for CFD mode (Tier 1+)
+cfd_grid_resolution = [64, 64, 64]
+
+# Smoothing length multiplier for SPH kernel
+sph_smoothing_multiplier = 1.2
