@@ -140,6 +140,43 @@ After every coordinator retirement signal in `knowledge/project_manifest.md`:
 2. If missing: file `severity: high` bug in `bug_pool/BUG_POOL.md` under `## Process Violations`
    Description: "Retirement without handoff prompt — coordinator <CX>, agent <agent_id>"
 
+## Root Anomaly Allowlist
+
+When scanning the workspace root for unexpected directories, the following top-level
+entries are **permitted** and must not be filed as anomalies. This list is derived from
+`knowledge/file_structure.md` and must be updated here whenever that file changes.
+
+| Entry | Reason |
+|-------|--------|
+| `.agents/` | QA and protocol files for multi-agent coordination |
+| `.cursor/` | Cursor IDE project rules (IDE tooling, root-owned) |
+| `.git/` | Git repository metadata |
+| `.gitignore` | VCS exclusion rules |
+| `AGENTS.md` | Shared agent instruction file |
+| `Cargo.lock` | Cargo dependency lock file |
+| `Cargo.toml` | Workspace manifest |
+| `README.md` | Workspace overview |
+| `ROOT_COORDINATOR.md` | Root coordinator specification |
+| `USAGE.md` | Workspace usage reference |
+| `builder/` | C2 — Build UI crate |
+| `components/` | C5 — Simulation component crates |
+| `config/` | Shared runtime configuration TOML files |
+| `coordinators/` | Coordinator PROMPT.md files |
+| `core/` | C1 — Core systems crate |
+| `debugger/` | C6 — Debugger crate |
+| `graphify-out/` | Graphify knowledge graph output (read-only) |
+| `knowledge/` | Tier A knowledge files |
+| `knowledge_b/` | Tier B proposal and staging area |
+| `out/` | Build output (gitignored) |
+| `pack/` | Session context and handoff files |
+| `physics_core/` | C4 — Physics core crate |
+| `rendering/` | C3 — Rendering crate |
+| `bug_pool/` | Central bug tracker |
+
+Any top-level entry not in this list is a **true anomaly** — file a `severity: process`
+bug in `bug_pool/BUG_POOL.md`. To add a permitted entry, a Tier A agent must update
+both this table and `knowledge/file_structure.md`, committing with `[TIER_A_REVIEW]`.
+
 ## CI Gate Specification
 
 C7 specifies the following gates. Tier B agents implement the actual test code.

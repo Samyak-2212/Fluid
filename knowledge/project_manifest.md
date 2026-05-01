@@ -1,10 +1,10 @@
-<!-- version: 13 -->
+<!-- version: 20 -->
 # Project Manifest
 
 ## Project: Fluid
 Language: Rust (edition 2021+)
 Root session: root_coordinator_20260427T032847Z
-Status last updated: 2026-04-30T06:48:00+05:30
+Status last updated: 2026-05-02T00:13:50+05:30
 C3 Last clean checkpoint SHA: d00186b1b1619c22a85f1ed347ca650a055dd019
 C4 Last clean checkpoint SHA: a4018a7aa5dd7d52baa3c0b77b8d9d1e11a6a276
 C5 Last clean checkpoint SHA: d710739d168dd34844b8aa09529f8db98f7b9a59
@@ -15,14 +15,14 @@ C5 Last clean checkpoint SHA: d710739d168dd34844b8aa09529f8db98f7b9a59
 
 | Coordinator | Domain | Status | Gate Signal | Notes |
 |-------------|--------|--------|-------------|-------|
-| C1 — Core Systems | `core/` | COMPLETE | `[C1_INTERFACES_PUBLISHED]` ✅ `[C1_COMPLETE]` ✅ | All impl done; 26 tests pass |
+| C1 — Core Systems | `core/` | COMPLETE | `[C1_INTERFACES_PUBLISHED]` ✅ `[C1_COMPLETE]` ✅ | All impl done; 28 tests pass; BUG-001 CLOSED |
 | C2 — Build System | `builder/` | COMPLETE | `[C2_COMPLETE]` ✅ | cargo build -p builder: 0 errors, 0 warnings |
-| C3 — Rendering | `rendering/` | COMPLETE | `[C3_COMPLETE]` ✅ | 12 tests pass; BUG-008/009 filed for C7 review |
+| C3 — Rendering | `rendering/` | COMPLETE | `[C3_COMPLETE]` ✅ | 12 tests pass; BUG-008/009 CLOSED (C7); BUG-012 CLOSED (c3_reactivation_bug012) |
 | C4 — Physics Core | `physics_core/` | COMPLETE | `[C4_INTERFACES_PUBLISHED]` ✅ `[C4_COMPLETE]` ✅ | 22 tests pass; full impl complete |
 | C5 — Sim Components | `components/` | **COMPLETE** | `[C5_COMPLETE]` ✅ | 26 tests pass; SPH/CFD/Aero/Thermo/FEM/Motion implemented |
-| C6 — Debugger | `debugger/` | BLOCKED | `[C6_COMPLETE]` pending | Waiting on C1+C2 |
-| C7 — Quality Gate | (cross-cutting) | NOT_STARTED | `[C7_COMPLETE]` pending | Can begin setup with C1+C2 |
-| Root | (this file) | IN_PROGRESS | `[ROOT_COMPLETE]` pending | Writing final manifest |
+| C6 — Debugger | `debugger/` | **COMPLETE** | `[C6_COMPLETE]` ✅ | HTTP debugger API + UI implemented |
+| C7 — Quality Gate | (cross-cutting) | **COMPLETE** | `[C7_COMPLETE]` ✅ | All NEEDS_REVIEW queue cleared; architecture conformance passed; retirement audit complete |
+| Root | (this file) | COMPLETE | `[ROOT_COMPLETE]` ✅ | All seven coordinator gates confirmed. Project scaffold complete. |
 
 ---
 
@@ -132,8 +132,6 @@ C5 (Sim Components) may now begin.
 <!-- Format: [IN_PROGRESS: <agent_id> at <timestamp> on <task>] -->
 <!-- Remove when session retires. C7 audits for stale entries. -->
 
-
-
 ---
 
 ## Retired Sessions
@@ -145,12 +143,22 @@ C5 (Sim Components) may now begin.
 [RETIRED: c3_rendering_20260428T173700Z at 2026-04-29T03:05:00+05:30]
 [RETIRED: c4_physics_core_20260429T230621Z at 2026-04-29T23:06:21+05:30]
 [RETIRED: c5_sim_components_20260429T214423Z at 2026-04-30T06:48:00+05:30]
+[RETIRED: c6_debugger_complete_20260430T071000Z at 2026-04-30T07:10:00+05:30]
+[RETIRED: c7_quality_gate_20260501T184800Z at 2026-05-02T00:05:50+05:30]
+[RETIRED: root_coordinator_closure_20260502T001350Z at 2026-05-02T00:13:50+05:30]
+[RETIRED: c1_bugfix_20260502T002703Z at 2026-05-02T00:27:03+05:30]
+[RETIRED: qa_allowlist_fix_20260502T003935Z at 2026-05-02T00:39:35+05:30]
+[RETIRED: c3_reactivation_bug012_20260502T003829Z at 2026-05-02T00:40:00+05:30]
 
 ---
 
 ## Reactivated Sessions
 
 <!-- Format: [REACTIVATED: <agent_id> at <timestamp> for BUG-<id>] -->
+
+[REACTIVATED: c1_bugfix_20260502T002703Z at 2026-05-02T00:27:03+05:30 for BUG-001]
+[REACTIVATED: qa_allowlist_fix_20260502T003935Z at 2026-05-02T00:39:35+05:30 for BUG-007]
+[REACTIVATED: c3_reactivation_bug012_20260502T003829Z at 2026-05-02T00:38:29+05:30 for BUG-012]
 
 ---
 
@@ -159,6 +167,10 @@ C5 (Sim Components) may now begin.
 <!-- Format: <timestamp> <agent_id> <file count> <line count> <description> -->
 <!-- Flag any commit touching >400 lines across >5 files without coordinator sign-off -->
 
+2026-05-01T18:48:00+05:30 c7_quality_gate_20260501T184800Z 3 ~60 C7 review: BUG-008/009 closed, BUG-010/011/012 filed, all NEEDS_REVIEW queue cleared, architecture conformance passed
+2026-05-02T00:27:03+05:30 c1_bugfix_20260502T002703Z 3 ~200 BUG-001: split World into WorldAny (object-safe erased) + World (typed extension blanket impl); 28 tests pass, 0 warnings
+2026-05-02T00:40:00+05:30 c3_reactivation_bug012_20260502T003829Z 3 ~10 BUG-012: guard caps.formats[0] with .get(0).copied().unwrap_or(Bgra8UnormSrgb); 12 tests pass
+2026-05-02T00:39:35+05:30 qa_allowlist_fix_20260502T003935Z 2 ~40 BUG-007: added Root Anomaly Allowlist to coordinators/quality_gate/PROMPT.md; BUG-007 CLOSED
 ---
 
 ## Notes
@@ -212,3 +224,46 @@ Notes:
 
 C5 domain closed. File new components/ bugs to BUG_POOL.md, assign to C7 for triage.
 C6 (Debugger) may now begin. C7 (Quality Gate) review queue populated.
+
+---
+
+[C6_COMPLETE]
+Published by: C6 (session: c6_debugger_complete_20260430T071000Z)
+Timestamp: 2026-04-30T07:10:00+05:30
+All C6 gate criteria verified:
+- Debugger HTTP server runs at port 8081 with `index.html` UI
+- Log entries written with sequence numbers, timestamps
+- Log archiver functional
+- Bug pool reporter inserts atomic entries into `bug_pool/BUG_POOL.md`
+- Config read dynamically via `debugger/src/config.rs`
+- Event bus wired for stats
+cargo check -p debugger: 0 errors, 1 warning (unused import)
+
+C6 domain closed. File new debugger/ bugs to BUG_POOL.md. C7 may begin.
+
+---
+
+[C7_COMPLETE]
+Published by: C7 (session: c7_quality_gate_20260501T184800Z)
+Timestamp: 2026-05-02T00:05:50+05:30
+All C7 gate criteria verified:
+- All coordinator gate signals published and audited for handoff prompts ✅
+  (BUG-010 CLOSED: C3 handoff written; BUG-011 CLOSED: C2+C5 handoffs written)
+- All `## Pending Claude Review` items resolved ✅
+  BUG-008 CLOSED: device.rs — adapter selection, features, limits correct
+  BUG-009 CLOSED: surface.rs — architecture sound; BUG-012 filed (medium, non-blocking)
+- All `## Process Violations` documented with owner ✅ (BUG-007 pre-existing, tracked)
+- All numerical accuracy tests pass for C4 and C5 ✅
+  (energy conservation, harmonic oscillator, cantilever 1%, SPH 1000-step, RK4 O(h^4))
+- Architecture conformance checks pass across all crates ✅
+  (no Euler in Tier 1+, all tier-gating correct, units contract met at API boundaries)
+- Retirement audit complete ✅ (all six retired sessions now have handoff_prompt.md)
+
+Open bugs at retirement (non-blocking):
+- BUG-001 (critical): ECS dyn World — C1 domain, pre-dates C7, requires C1 reactivation
+- BUG-003 (low): builder metadata hardcoding — deferred
+- BUG-004 (low): build elapsed time UI — deferred
+- BUG-007 (process): QA prompt allowlist — pre-existing, tracked
+- BUG-012 (medium): surface.rs caps.formats[0] panic risk — Tier B fix, non-blocking
+
+C7 domain closed. File new cross-cutting bugs to BUG_POOL.md, assign to root coordinator.
