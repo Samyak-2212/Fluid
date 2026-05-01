@@ -38,19 +38,25 @@ pub struct ComponentEntry {
 /// Mutates selection state in place.
 /// `statuses` is the per-component build status map from `BuildState`; used
 /// only for reading elapsed time — no mutations.
+/// `flag_selections` maps flag names to their current bool value (from the
+/// Build Flags panel); used so dependency checks span both panels.
 /// Returns a warning string if any dependency constraint is violated.
 pub fn render_component_list(
     ui: &mut Ui,
     components: &mut Vec<ComponentEntry>,
     statuses: &HashMap<String, ComponentStatus>,
+    flag_selections: &HashMap<String, bool>,
 ) -> Option<String> {
     let mut warning: Option<String> = None;
 
-    // Build a quick lookup of current selections.
-    let selections: HashMap<String, bool> = components
-        .iter()
-        .map(|c| (c.name.clone(), c.selected))
-        .collect();
+    // Build a quick lookup of current selections — merge right-panel component
+    // selections with left-panel flag selections so dependency checks span both.
+    let mut selections: HashMap<String, bool> = flag_selections.clone();
+    for c in components.iter() {
+        if c.selected {
+            selections.insert(c.name.clone(), true);
+        }
+    }
 
     for comp in components.iter_mut() {
         // Determine if any required dependency is deselected.

@@ -1,6 +1,7 @@
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::fs;
+#[allow(unused_imports)]
 use std::io::Read;
 use tiny_http::{Server, Response, Header, Method, StatusCode};
 use crate::log_system::LogSystem;

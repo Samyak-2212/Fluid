@@ -17,7 +17,7 @@ default     = "false"
 
 [[flag]]
 name        = "fluid_simulator"
-kind        = "feature"
+kind        = "component"
 label       = "Fluid Simulator"
 description = "Builds the SPH and grid CFD fluid simulation component."
 type        = "bool"
@@ -25,7 +25,7 @@ default     = "false"
 
 [[flag]]
 name        = "aerodynamic_simulator"
-kind        = "feature"
+kind        = "component"
 label       = "Aerodynamic Simulator"
 description = "Builds the aerodynamics simulation component."
 type        = "bool"
@@ -33,7 +33,7 @@ default     = "false"
 
 [[flag]]
 name        = "motion_force_simulator"
-kind        = "feature"
+kind        = "component"
 label       = "Motion & Force Simulator"
 description = "Builds the rigid/soft body force application, actuators, and joint-driven motion component."
 type        = "bool"
@@ -41,7 +41,7 @@ default     = "false"
 
 [[flag]]
 name        = "thermodynamic_simulator"
-kind        = "feature"
+kind        = "component"
 label       = "Thermodynamic Simulator"
 description = "Builds the thermodynamics simulation component."
 type        = "bool"
@@ -49,7 +49,7 @@ default     = "false"
 
 [[flag]]
 name        = "fem_structural"
-kind        = "feature"
+kind        = "component"
 label       = "FEM Structural"
 description = "Builds the finite element method structural analysis component."
 type        = "bool"

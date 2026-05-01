@@ -1,4 +1,4 @@
-<!-- version: 22 -->
+<!-- version: 23 -->
 # Project Manifest
 
 ## Project: Fluid
@@ -9,6 +9,7 @@ C3 Last clean checkpoint SHA: d00186b1b1619c22a85f1ed347ca650a055dd019
 C4 Last clean checkpoint SHA: a4018a7aa5dd7d52baa3c0b77b8d9d1e11a6a276
 C5 Last clean checkpoint SHA: d710739d168dd34844b8aa09529f8db98f7b9a59
 qa_allowlist_fix Last clean checkpoint SHA: b6726b7
+conformity_fix Last clean checkpoint SHA: 1ac87610436878ab6091e62f4354f4e7596e2494
 
 ---
 
@@ -23,7 +24,7 @@ qa_allowlist_fix Last clean checkpoint SHA: b6726b7
 | C5 — Sim Components | `components/` | **COMPLETE** | `[C5_COMPLETE]` ✅ | 26 tests pass; SPH/CFD/Aero/Thermo/FEM/Motion implemented |
 | C6 — Debugger | `debugger/` | **COMPLETE** | `[C6_COMPLETE]` ✅ | HTTP debugger API + UI implemented |
 | C7 — Quality Gate | (cross-cutting) | **COMPLETE** | `[C7_COMPLETE]` ✅ | All NEEDS_REVIEW queue cleared; architecture conformance passed; retirement audit complete |
-| Root | (this file) | COMPLETE | `[ROOT_COMPLETE]` ✅ | All seven coordinator gates confirmed. Project scaffold complete. |
+| Root | (this file) | COMPLETE | `[ROOT_COMPLETE]` ✅ | All seven coordinator gates confirmed. BUG-018/019 found and closed on first user build. |
 
 ---
 
@@ -179,6 +180,7 @@ C5 (Sim Components) may now begin.
 2026-05-02T00:38:50+05:30 c2_reactivation_20260502T003850Z 3 ~180 BUG-003: replace hardcoded default_components() with dynamic Cargo.toml reader (load_components); fem_structural requires=[motion_force_simulator] now surfaced; 0 errors 0 warnings
 2026-05-02T00:43:58+05:30 c2_reactivation_bug004_20260502T004358Z 2 ~40 BUG-004: add format_elapsed helper + statuses param to render_component_list; elapsed displayed as colored small label per component; 0 errors 0 warnings
 2026-05-02T00:58:35+05:30 conformity_fix_20260502T005835Z 26 ~150 [TIER_A_REVIEW] BUG-013: expand Root Anomaly Allowlist; BUG-014: NewmarkBetaState units exception approved; BUG-015: clear stale NEEDS_REVIEW tags in 19 files; BUG-016: file_structure.md self-version fixed; BUG-017: guard caps.alpha_modes[0]. All 17 bugs now CLOSED.
+2026-05-02T01:25:48+05:30 root_coordinator_20260502T012146Z 3 ~30 BUG-018: fix NewmarkBeta::step to displacement-form (Hughes §9.2); 26/26 physics_core tests pass. BUG-019: suppress spurious unused_imports in debugger/http_server.rs; 0 warnings. Full workspace: 86 tests, 0 failures.
 ---
 
 ## Notes

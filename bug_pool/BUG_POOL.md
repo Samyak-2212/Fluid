@@ -78,6 +78,26 @@ Closed entries are never deleted — they stay in `## Closed` permanently.
 
 ## Low
 
+### BUG-018
+- Severity: low
+- Component: physics_core/src/integrators/newmark_beta.rs
+- Reported by: root_coordinator_20260502T012146Z
+- Description: `NewmarkBeta::step` used an incorrect acceleration-form solve (`a_new = (f - k·u_pred) / k_eff`) that produces ~96% energy drift per 2000 steps; should use the standard displacement-form solve from Hughes §9.2.
+- Reproduction: `cargo test -p physics_core --features tier_1` — `harmonic_oscillator_bounded_energy` and `static_displacement_converges` fail.
+- Assigned to: root_coordinator_20260502T012146Z
+- Status: CLOSED
+- Resolution: Rewrote `step()` to displacement-form: compute `f_eff = f_next + m/(β·dt²)·u + m/(β·dt)·v + m·(1/(2β)-1)·a`, solve `u_new = f_eff / k_eff`, back-compute `a_new = (u_new - u_pred)/(β·dt²)` and `v_new`. Energy drift now < 1% over 2000 steps. `cargo test -p physics_core --features tier_1`: 26 passed, 0 failed.
+
+### BUG-019
+- Severity: low
+- Component: debugger/src/http_server.rs
+- Reported by: root_coordinator_20260502T012146Z
+- Description: `use std::io::Read` triggers `unused_imports` warning despite being required by `as_reader().read_to_string()` on line 88; rustc cannot resolve the trait through tiny_http's trait-object return type.
+- Reproduction: `cargo build` — one warning in debugger/src/http_server.rs.
+- Assigned to: root_coordinator_20260502T012146Z
+- Status: CLOSED
+- Resolution: Added `#[allow(unused_imports)]` above the `use std::io::Read` line. `cargo build`: 0 errors, 0 warnings.
+
 ### BUG-014
 - Severity: low
 - Component: physics_core/src/integrators/newmark_beta.rs

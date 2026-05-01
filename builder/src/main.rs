@@ -258,11 +258,12 @@ impl FluidBuilderApp {
 
     /// Build and return the cargo Command according to current flag state.
     fn build_command(&self) -> Command {
-        // Collect env flags, cargo flags, and feature flags.
+        // Collect env flags, cargo flags, feature flags, and component package flags.
         let mut cmd = Command::new("cargo");
         cmd.arg("build");
 
         let mut features: Vec<String> = Vec::new();
+        let mut packages: Vec<String> = Vec::new();
         let mut is_release = false;
         let mut tier = "0".to_string();
 
@@ -287,15 +288,29 @@ impl FluidBuilderApp {
                         features.push(flag.entry.name.clone());
                     }
                 }
+                // Component crates are workspace members — select via -p, not --features.
+                "component" => {
+                    if flag.current_value == "true" {
+                        packages.push(flag.entry.name.clone());
+                    }
+                }
                 _ => {}
             }
         }
 
-        // Add component features that are selected.
+        // Also honour the right-panel component checkboxes (ComponentEntry).
+        // Deduplicate against packages already added from flags.
         for comp in &self.components {
-            if comp.selected {
-                features.push(comp.name.clone());
+            if comp.selected && !packages.contains(&comp.name) {
+                packages.push(comp.name.clone());
             }
+        }
+
+        // Emit -p for each selected component package.
+        // If nothing is selected, cargo builds the whole workspace.
+        for pkg in &packages {
+            cmd.arg("-p");
+            cmd.arg(pkg);
         }
 
         if !features.is_empty() {
@@ -469,7 +484,13 @@ impl eframe::App for FluidBuilderApp {
             .show_inside(ui, |ui| {
                 ui.heading("Components");
                 ui.separator();
-                let warn = render_component_list(ui, &mut self.components, &self.build_state.component_statuses);
+                let flag_selections: std::collections::HashMap<String, bool> = self
+                    .flags
+                    .iter()
+                    .filter(|f| f.entry.kind == "component")
+                    .map(|f| (f.entry.name.clone(), f.current_value == "true"))
+                    .collect();
+                let warn = render_component_list(ui, &mut self.components, &self.build_state.component_statuses, &flag_selections);
                 if let Some(w) = warn {
                     self.component_warning = Some(w);
                 }

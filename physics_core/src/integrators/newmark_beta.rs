@@ -139,28 +139,51 @@ impl Integrator for NewmarkBeta {
         let dt = dt.value();
         let dt2 = dt * dt;
 
-        // 1. Predictor
+        // Standard Newmark-Beta displacement-form (Hughes §9.2):
+        //
+        // Predictor (explicit, uses old a):
+        //   u_pred = u + dt·v + dt²·(0.5 - β)·a
+        //   v_pred = v + dt·(1 - γ)·a
+        //
+        // Solve for u_new directly:
+        //   k_eff · u_new = f_next + m/(β·dt²)·u_pred + m/(β·dt)·v_pred
+        //                          + (m·(1/(2β) - 1))·a
+        // which simplifies (since k_eff = m/(β·dt²) + k) to:
+        //   u_new = (f_next + m/(β·dt²)·u + m/(β·dt)·v + m·(1/(2β)-1)·a) / k_eff
+        //
+        // Back-compute a_new and v_new from correctors:
+        //   a_new = (u_new - u_pred) / (β·dt²)
+        //   v_new = v_pred + γ·dt·a_new
+
+        let inv_beta_dt2 = 1.0 / (NEWMARK_BETA * dt2);
+        let inv_beta_dt  = 1.0 / (NEWMARK_BETA * dt);
+        let half_inv_beta_minus_1 = 0.5 / NEWMARK_BETA - 1.0;
+
+        // Effective force at t+dt
+        let f_eff = state.force_next
+            + state.mass * inv_beta_dt2 * state.displacement
+            + state.mass * inv_beta_dt  * state.velocity
+            + state.mass * half_inv_beta_minus_1 * state.acceleration;
+
+        // Solve: k_eff · u_new = f_eff
+        let u_new = f_eff / state.k_eff;
+
+        // Predictor (needed only to back-compute a_new)
         let u_pred = state.displacement
             + dt * state.velocity
             + dt2 * (0.5 - NEWMARK_BETA) * state.acceleration;
         let v_pred = state.velocity + dt * (1.0 - NEWMARK_GAMMA) * state.acceleration;
 
-        // 2. Solve for new acceleration
-        // k_eff = m/(β·dt²) + k  [pre-computed by caller and stored in k_eff]
-        // a_new = (f_next - k·u_pred) / k_eff
-        let residual = state.force_next - state.stiffness * u_pred;
-        let a_new = residual / state.k_eff;
-
-        // 3. Corrector
-        let u_new = u_pred + NEWMARK_BETA * dt2 * a_new;
+        // Correctors
+        let a_new = (u_new - u_pred) * inv_beta_dt2;
         let v_new = v_pred + NEWMARK_GAMMA * dt * a_new;
 
         NewmarkBetaState {
             displacement: u_new,
             velocity: v_new,
             acceleration: a_new,
-            // Caller must set force_next for the next timestep.
-            // We carry forward the same force as a safe default (time-invariant load).
+            // Carry forward force as default (time-invariant load);
+            // caller must update force_next before each step for time-varying loads.
             force_next: state.force_next,
             k_eff: state.k_eff,
             mass: state.mass,
@@ -218,11 +241,12 @@ mod tests {
             + 0.5 * stiffness * state.displacement * state.displacement;
 
         let drift = (final_energy - initial_energy).abs();
-        // Newmark-Beta (β=0.25) introduces numerical damping for large dt;
-        // energy may decrease. Bound: < 10% over 2000 steps.
+        // Newmark-Beta (β=0.25, γ=0.5) is energy-conserving (non-dissipative) for
+        // linear systems. Numerical energy error should be < 1% over 2000 steps
+        // at dt=0.05, ω=1 (ωΔt = 0.05 ≪ 2, well within stability region).
         assert!(
-            drift < 0.1 * initial_energy + 1e-10,
-            "Energy drift {drift:.6} exceeds 10% of initial {initial_energy:.6}"
+            drift < 0.01 * initial_energy + 1e-10,
+            "Energy drift {drift:.6} exceeds 1% of initial {initial_energy:.6}"
         );
     }
 
