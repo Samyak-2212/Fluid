@@ -1,4 +1,4 @@
-// [NEEDS_REVIEW: claude]
+// [REVIEWED: claude — C5 complete gate + C7 quality gate, 2026-05-02. No issues found.]
 //! CFD module — Tier 1+.
 //!
 //! Incompressible Navier-Stokes via the projection method (Chorin 1968).

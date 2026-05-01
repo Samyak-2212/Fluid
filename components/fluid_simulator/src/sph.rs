@@ -1,4 +1,4 @@
-// [NEEDS_REVIEW: claude]
+// [REVIEWED: claude — C5 complete gate + C7 quality gate, 2026-05-02. No issues found.]
 //! SPH fluid simulation — Tier 0+ (all tiers).
 //!
 //! Implements Smoothed Particle Hydrodynamics per the physics contract:

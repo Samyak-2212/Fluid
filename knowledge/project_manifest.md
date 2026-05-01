@@ -178,6 +178,7 @@ C5 (Sim Components) may now begin.
 2026-05-02T00:39:35+05:30 qa_allowlist_fix_20260502T003935Z 2 ~40 BUG-007: added Root Anomaly Allowlist to coordinators/quality_gate/PROMPT.md; BUG-007 CLOSED
 2026-05-02T00:38:50+05:30 c2_reactivation_20260502T003850Z 3 ~180 BUG-003: replace hardcoded default_components() with dynamic Cargo.toml reader (load_components); fem_structural requires=[motion_force_simulator] now surfaced; 0 errors 0 warnings
 2026-05-02T00:43:58+05:30 c2_reactivation_bug004_20260502T004358Z 2 ~40 BUG-004: add format_elapsed helper + statuses param to render_component_list; elapsed displayed as colored small label per component; 0 errors 0 warnings
+2026-05-02T00:58:35+05:30 conformity_fix_20260502T005835Z 26 ~150 [TIER_A_REVIEW] BUG-013: expand Root Anomaly Allowlist; BUG-014: NewmarkBetaState units exception approved; BUG-015: clear stale NEEDS_REVIEW tags in 19 files; BUG-016: file_structure.md self-version fixed; BUG-017: guard caps.alpha_modes[0]. All 17 bugs now CLOSED.
 ---
 
 ## Notes

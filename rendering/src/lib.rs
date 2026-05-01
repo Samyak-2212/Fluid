@@ -4,9 +4,9 @@
 //! # Module layout
 //!
 //! - [`camera`]          — Camera with SI Meters position, view/projection matrices
-//! - [`device`]          — wgpu device/adapter/queue initialisation [NEEDS_REVIEW: claude]
-//! - [`surface`]         — wgpu surface and swapchain [NEEDS_REVIEW: claude]
-//! - [`pipeline`]        — per-tier render pipeline builders [NEEDS_REVIEW: claude]
+//! - [`device`]          — wgpu device/adapter/queue initialisation
+//! - [`surface`]         — wgpu surface and swapchain
+//! - [`pipeline`]        — per-tier render pipeline builders
 //! - [`tier0`]           — softbuffer CPU rasterizer (Tier 0, `cfg(feature = "tier_0")`)
 //! - [`scene_renderer`]  — `SceneRenderer` trait + `StubRenderer`
 //! - [`debug_overlay`]   — frame stats overlay (debug builds)

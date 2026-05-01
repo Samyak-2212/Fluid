@@ -149,12 +149,15 @@ entries are **permitted** and must not be filed as anomalies. This list is deriv
 | Entry | Reason |
 |-------|--------|
 | `.agents/` | QA and protocol files for multi-agent coordination |
+| `.codex/` | Codex IDE tooling directory (root-owned) |
 | `.cursor/` | Cursor IDE project rules (IDE tooling, root-owned) |
 | `.git/` | Git repository metadata |
 | `.gitignore` | VCS exclusion rules |
 | `AGENTS.md` | Shared agent instruction file |
+| `CLAUDE.md` | Claude Code project memory file (IDE tooling, root-owned) |
 | `Cargo.lock` | Cargo dependency lock file |
 | `Cargo.toml` | Workspace manifest |
+| `LICENSE` | Project licence file |
 | `README.md` | Workspace overview |
 | `ROOT_COORDINATOR.md` | Root coordinator specification |
 | `USAGE.md` | Workspace usage reference |
@@ -172,6 +175,7 @@ entries are **permitted** and must not be filed as anomalies. This list is deriv
 | `physics_core/` | C4 — Physics core crate |
 | `rendering/` | C3 — Rendering crate |
 | `bug_pool/` | Central bug tracker |
+| `target/` | Cargo build cache (gitignored) |
 
 Any top-level entry not in this list is a **true anomaly** — file a `severity: process`
 bug in `bug_pool/BUG_POOL.md`. To add a permitted entry, a Tier A agent must update

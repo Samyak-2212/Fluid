@@ -1,6 +1,6 @@
 //! rendering/src/pipeline/mod.rs
 //!
-//! [NEEDS_REVIEW: claude]
+//! [REVIEWED: claude — scaffold stub only, C7 pass 2026-05-02. No implementation to review yet.]
 //! Render pipeline builders — one per tier.
 //!
 //! Pipeline layout and render pass structure is Tier A work.

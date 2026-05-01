@@ -1,4 +1,4 @@
-// [NEEDS_REVIEW: claude]
+// [REVIEWED: claude — C4 complete gate + C7 quality gate, 2026-05-02. No issues found.]
 //! Sequential impulse constraint solver — Tier 0+.
 //!
 //! Iteration count from `config/physics_core.toml` key `constraint_solver_iterations`.

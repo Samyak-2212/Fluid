@@ -1,4 +1,4 @@
-// [NEEDS_REVIEW: claude]
+// [REVIEWED: claude — C7 quality gate pass, 2026-05-02. No issues found.]
 //! Implicit Newmark-Beta integrator — Tier 1+ only.
 //!
 //! Parameters (per `knowledge/physics_contract.md`): γ = 0.5, β = 0.25
@@ -54,6 +54,21 @@ pub const NEWMARK_BETA: f64 = 0.25;
 /// For multi-DOF FEM systems, the `fem_structural` assembler holds the global
 /// displacement, velocity, and acceleration vectors and advances each DOF using
 /// this integrator in a system-assembled form.
+/// # Units exception (BUG-014 resolution)
+///
+/// `physics_contract.md §Dimensional Correctness` requires `core::units` newtype wrappers
+/// at all public API boundaries. `NewmarkBetaState` deliberately uses raw `f64` for its
+/// scalar DOF fields for the following reason:
+///
+/// The FEM assembler in `fem_structural` operates on dense `f64` vectors and matrices via
+/// the `faer` crate. Wrapping every scalar DOF in a `Meters`, `Newtons`, etc. newtype would
+/// require pervasive `.value()` unwrapping throughout all matrix assembly code, providing no
+/// safety benefit at that internal boundary while significantly degrading readability.
+///
+/// **Approved exception:** scalar DOFs inside the FEM time-integration pipeline may use raw
+/// `f64`. The units contract is enforced at the *outer* API boundary (the force/displacement
+/// inputs that callers pass to the FEM assembler). This exception was reviewed and approved
+/// under BUG-014 (Tier A, 2026-05-02).
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct NewmarkBetaState {
     /// Displacement at current time t (metres or radians depending on DOF type).

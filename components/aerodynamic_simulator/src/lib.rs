@@ -1,4 +1,4 @@
-// [NEEDS_REVIEW: claude]
+// [REVIEWED: claude — C5 complete gate + C7 quality gate, 2026-05-02. No issues found.]
 //! Aerodynamic simulator — Tier 1+.
 //!
 //! Provides aerodynamic force vectors (lift, drag, thrust) for bodies in the ECS.

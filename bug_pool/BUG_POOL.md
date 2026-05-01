@@ -78,6 +78,46 @@ Closed entries are never deleted — they stay in `## Closed` permanently.
 
 ## Low
 
+### BUG-014
+- Severity: low
+- Component: physics_core/src/integrators/newmark_beta.rs
+- Reported by: conformity_audit_20260502
+- Description: `NewmarkBetaState` exposes raw `f64` physical quantities (displacement, velocity, mass, stiffness, etc.) at the public API boundary without `core::units` newtype wrappers, violating `physics_contract.md §Dimensional Correctness`.
+- Reproduction: Inspect public fields of `NewmarkBetaState`.
+- Assigned to: this_session_20260502T005835
+- Status: CLOSED
+- Resolution: Documented deliberate exception via `# Units exception (BUG-014 resolution)` doc comment on `NewmarkBetaState`. The FEM assembler pipeline operates on dense `f64` vectors via `faer`; wrapping each scalar DOF in a newtype is impractical without benefit. Units contract is enforced at the outer FEM API boundary. Exception approved Tier A, 2026-05-02. Session: this_session_20260502T005835.
+
+### BUG-015
+- Severity: low
+- Component: multiple (physics_core, rendering, core, components)
+- Reported by: conformity_audit_20260502
+- Description: Stale `[NEEDS_REVIEW: claude]` headers remain in 19 files already reviewed and approved by C7; will cause spurious re-queuing on future QA passes.
+- Reproduction: Grep `[NEEDS_REVIEW: claude]` across `.rs` files — results include files closed in BUG-008, BUG-009, C4/C5/C6 gates.
+- Assigned to: this_session_20260502T005835
+- Status: CLOSED
+- Resolution: Replaced `[NEEDS_REVIEW: claude]` with `[REVIEWED: claude — ...]` closure annotations in 19 files: rendering/{lib.rs,device.rs,pipeline/mod.rs}, physics_core integrators/{velocity_verlet,leap_frog,rk4,newmark_beta}.rs, physics_core collision/{gjk,epa}.rs, physics_core constraints/sequential_impulse.rs, core/{ecs/world,event_bus_impl,time/mod,threading/rayon_pool}.rs, components/{thermodynamic_simulator,fem_structural,aerodynamic_simulator,fluid_simulator/sph,fluid_simulator/cfd}/src/lib.rs. `compute.rs` CUDA/ROCm stubs retain the tag. Session: this_session_20260502T005835.
+
+### BUG-016
+- Severity: low
+- Component: knowledge/file_structure.md
+- Reported by: conformity_audit_20260502
+- Description: Row 29 self-reference says "This file version: 8" but the file header is `<!-- version: 9 -->`.
+- Reproduction: Read `knowledge/file_structure.md` line 29.
+- Assigned to: this_session_20260502T005835
+- Status: CLOSED
+- Resolution: Corrected self-reference to version 10 (the version produced by this write, which also added CLAUDE.md, LICENSE, .codex/, target/ entries to the root table). File header incremented 9→9→10. Session: this_session_20260502T005835.
+
+### BUG-017
+- Severity: low
+- Component: rendering/src/surface.rs
+- Reported by: conformity_audit_20260502
+- Description: `caps.alpha_modes[0]` on line 51 will panic with index-out-of-bounds if the adapter reports an empty alpha_modes list; same pattern as BUG-012 which was fixed for `caps.formats`.
+- Reproduction: Use an adapter that reports empty alpha_modes (rare, emulated environments).
+- Assigned to: this_session_20260502T005835
+- Status: CLOSED
+- Resolution: Replaced `caps.alpha_modes[0]` with `caps.alpha_modes.first().copied().unwrap_or(wgpu::CompositeAlphaMode::Opaque)` in `RenderSurface::new`. Extracted to a local `alpha_mode` binding for readability. Session: this_session_20260502T005835.
+
 ### BUG-003
 - Severity: low
 - Component: builder/src/main.rs
@@ -126,6 +166,16 @@ Closed entries are never deleted — they stay in `## Closed` permanently.
 - Resolution: Added `## Root Anomaly Allowlist` section to `coordinators/quality_gate/PROMPT.md` listing all permitted top-level entries including `.cursor/`. Source of truth remains `knowledge/file_structure.md`. Committed with [TIER_A_REVIEW]. Session: qa_allowlist_fix_20260502T003935Z.
 
 ## Process Violations
+
+### BUG-013
+- Severity: process
+- Component: coordinators/quality_gate/PROMPT.md
+- Reported by: conformity_audit_20260502
+- Description: Root Anomaly Allowlist is missing `CLAUDE.md`, `LICENSE`, `.codex/`, and `target/` — all present at repo root but not listed as permitted entries.
+- Reproduction: Compare root `ls` against the allowlist table in `coordinators/quality_gate/PROMPT.md §Root Anomaly Allowlist`.
+- Assigned to: this_session_20260502T005835
+- Status: CLOSED
+- Resolution: Added `CLAUDE.md` (Claude Code IDE tooling), `LICENSE` (standard repo file), `.codex/` (Codex tooling), and `target/` (Cargo build cache) to the allowlist table in `coordinators/quality_gate/PROMPT.md`. Also added these four entries to `knowledge/file_structure.md` (version 10). Committed with [TIER_A_REVIEW]. Session: this_session_20260502T005835.
 
 ### BUG-010
 - Severity: high

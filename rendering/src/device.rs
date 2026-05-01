@@ -1,6 +1,6 @@
 //! rendering/src/device.rs
 //!
-//! [NEEDS_REVIEW: claude]
+//! [REVIEWED: claude — BUG-008 closed, 2026-05-01. No architecture issues found.]
 //! wgpu device/adapter/queue initialization.
 //! Tier A work: architecture, adapter selection, feature set negotiation.
 //!

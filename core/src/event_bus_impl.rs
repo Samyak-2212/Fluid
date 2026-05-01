@@ -1,4 +1,4 @@
-// [NEEDS_REVIEW: claude]
+// [REVIEWED: claude — C1 complete gate + C7 quality gate, 2026-05-02. No issues found.]
 //! Concrete `RwLock`-backed event bus implementation.
 //!
 //! [`LocalEventBus`] stores handlers per event type in a

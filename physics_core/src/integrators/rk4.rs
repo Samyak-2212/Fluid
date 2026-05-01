@@ -1,4 +1,4 @@
-// [NEEDS_REVIEW: claude]
+// [REVIEWED: claude — C5 complete gate + C7 quality gate, 2026-05-02. No issues found.]
 //! Runge-Kutta 4th order (RK4) integrator — Tier 1+ only.
 //!
 //! Mandated for: CFD (projection method stages) and thermodynamics

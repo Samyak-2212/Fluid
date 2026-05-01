@@ -1,4 +1,4 @@
-// [NEEDS_REVIEW: claude]
+// [REVIEWED: claude — C5 complete gate + C7 quality gate, 2026-05-02. No issues found.]
 //! FEM structural simulator — Tier 1 (linear), Tier 2 (nonlinear Newton-Raphson).
 //!
 //! # Scope

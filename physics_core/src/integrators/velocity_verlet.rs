@@ -1,4 +1,4 @@
-// [NEEDS_REVIEW: claude]
+// [REVIEWED: claude — C4 complete gate + C7 quality gate, 2026-05-02. No issues found.]
 //! Velocity Verlet integrator — Tier 0+ (all tiers).
 //!
 //! Scheme (per `knowledge/physics_contract.md`):

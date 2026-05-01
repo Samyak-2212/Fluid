@@ -1,17 +1,22 @@
-<!-- version: 9 -->
+<!-- version: 10 -->
 # File Structure
 
-Last updated by: C6 debugger coordinator (session: c6_debugger_complete_20260430T071000Z)
-Reflects C6 full implementation: Debugger API and HTTP UI. Merged onto version: 8.
+Last updated by: this_session_20260502T005835 (BUG-013/016 conformity fixes)
+Reflects: added CLAUDE.md, LICENSE, .codex/, target/ to root table; fixed self-version stale ref. Merged onto version: 9.
 
 ## Root
 
 | Path | Type | Owner | Status | Notes |
 |------|------|-------|--------|-------|
 | `AGENTS.md` | file | Root | active | Agent rules all agents read |
+| `CLAUDE.md` | file | Root | active | Claude Code project memory; defers to AGENTS.md |
 | `ROOT_COORDINATOR.md` | file | Root | active | User source prompt, not repo-authored output |
 | `Cargo.toml` | file | Root | active | Workspace skeleton and shared dependency versions |
+| `Cargo.lock` | file | Root | active | Cargo dependency lock file |
+| `LICENSE` | file | Root | active | MIT OR Apache-2.0 licence |
 | `.gitignore` | file | Root | active | Excludes build and log artifacts |
+| `.codex/` | dir | Root | active | Codex IDE tooling directory |
+| `target/` | dir | Build | gitignored | Cargo build cache |
 | `README.md` | file | docs | draft | Workspace overview and build entry points |
 | `USAGE.md` | file | docs | draft | Workspace usage reference |
 
@@ -26,7 +31,7 @@ All files in `knowledge/` are Tier A authored and maintained. Files carry a `<!-
 | `knowledge/dependency_graph.md` | file | Root | active | version: 1 |
 | `knowledge/model_tier_policy.md` | file | Root | active | version: 1 |
 | `knowledge/config_schema.md` | file | Root | active | version: 1 |
-| `knowledge/file_structure.md` | file | Root/C2/C5 | active | This file version: 8 |
+| `knowledge/file_structure.md` | file | Root/C2/C5 | active | This file version: 10 |
 | `knowledge/project_manifest.md` | file | Root | active | version: 12, C5 complete |
 
 ## bug_pool/

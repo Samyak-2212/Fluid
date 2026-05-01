@@ -1,4 +1,4 @@
-// [NEEDS_REVIEW: claude]
+// [REVIEWED: claude — C4/C5 complete gate + C7 quality gate, 2026-05-02. No issues found.]
 //! Leap-Frog (Störmer-Verlet) integrator — Tier 0+ (all tiers).
 //!
 //! Mandated for: SPH fluid simulation (consumed by C5).

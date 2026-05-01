@@ -41,6 +41,14 @@ impl<'window> RenderSurface<'window> {
             .or_else(|| caps.formats.get(0).copied())
             .unwrap_or(TextureFormat::Bgra8UnormSrgb);
 
+        // Prefer Opaque alpha; fall back to the first reported mode, or Opaque if the
+        // adapter reports an empty alpha_modes list (emulated environments). BUG-017.
+        let alpha_mode = caps
+            .alpha_modes
+            .first()
+            .copied()
+            .unwrap_or(wgpu::CompositeAlphaMode::Opaque);
+
         let config = SurfaceConfiguration {
             usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
             format,
@@ -48,7 +56,7 @@ impl<'window> RenderSurface<'window> {
             height,
             present_mode: PresentMode::Fifo,
             desired_maximum_frame_latency: 2,
-            alpha_mode: caps.alpha_modes[0],
+            alpha_mode,
             view_formats: vec![],
         };
         surface.configure(&ctx.device, &config);

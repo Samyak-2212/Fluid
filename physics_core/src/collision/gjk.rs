@@ -1,4 +1,4 @@
-// [NEEDS_REVIEW: claude]
+// [REVIEWED: claude — C4 complete gate + C7 quality gate, 2026-05-02. No issues found.]
 //! GJK (Gilbert-Johnson-Keerthi) narrowphase collision detection.
 //!
 //! Returns a boolean: whether two convex shapes intersect.

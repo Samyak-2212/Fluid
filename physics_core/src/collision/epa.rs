@@ -1,4 +1,4 @@
-// [NEEDS_REVIEW: claude]
+// [REVIEWED: claude — C4 complete gate + C7 quality gate, 2026-05-02. No issues found.]
 //! EPA (Expanding Polytope Algorithm) — penetration depth and contact normal.
 //!
 //! Called after GJK confirms intersection.

@@ -1,4 +1,4 @@
-// [NEEDS_REVIEW: claude]
+// [REVIEWED: claude — BUG-001 fix session + C7 quality gate, 2026-05-02. No issues found.]
 //! Concrete archetype-based ECS world implementation.
 //!
 //! Provides [`ArchetypeWorld`], a concrete type implementing the [`WorldAny`] trait.
