@@ -1,9 +1,9 @@
 //! rendering/src/surface.rs
 //!
-//! [NEEDS_REVIEW: claude]
 //! wgpu surface and swapchain management.
 //! Surface creation requires a valid window handle (raw-window-handle 0.6).
 //! Tier 0 does not use this module — it uses the softbuffer path in `tier0/`.
+//! BUG-012 fixed: caps.formats[0] replaced with .get(0).copied().unwrap_or fallback.
 
 use wgpu::{Surface, SurfaceConfiguration, TextureFormat, PresentMode};
 use crate::device::GpuContext;
@@ -29,12 +29,17 @@ impl<'window> RenderSurface<'window> {
             .map_err(SurfaceError::Create)?;
 
         let caps = surface.get_capabilities(&ctx.adapter);
+        // Prefer an sRGB format; fall back to the first reported format, or
+        // Bgra8UnormSrgb if the adapter reports an empty format list (emulated
+        // environments). Using .get(0) avoids an index-out-of-bounds panic
+        // (BUG-012).
         let format = caps
             .formats
             .iter()
             .copied()
             .find(|f| f.is_srgb())
-            .unwrap_or(caps.formats[0]);
+            .or_else(|| caps.formats.get(0).copied())
+            .unwrap_or(TextureFormat::Bgra8UnormSrgb);
 
         let config = SurfaceConfiguration {
             usage: wgpu::TextureUsages::RENDER_ATTACHMENT,

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fluid Debugger</title>
+    <style>
+        body { font-family: monospace; background: #1e1e1e; color: #d4d4d4; padding: 20px; }
+        .section { background: #252526; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
+        h2 { border-bottom: 1px solid #333; padding-bottom: 5px; color: #569cd6; }
+        #logs { height: 300px; overflow-y: scroll; background: #000; padding: 10px; font-size: 12px; }
+        .log-line { margin: 2px 0; }
+        .log-TRACE { color: #808080; }
+        .log-DEBUG { color: #008000; }
+        .log-INFO { color: #0000ff; }
+        .log-WARN { color: #ffa500; }
+        .log-ERROR { color: #ff0000; }
+        .log-FATAL { color: #ff0000; font-weight: bold; }
+        input, select, textarea, button { background: #333; color: #d4d4d4; border: 1px solid #555; padding: 5px; margin: 5px 0; width: 100%; box-sizing: border-box; }
+        button { cursor: pointer; background: #0e639c; color: white; border: none; }
+        button:hover { background: #1177bb; }
+        pre { white-space: pre-wrap; word-wrap: break-word; }
+        .stats { display: flex; gap: 20px; }
+        .stat-box { background: #333; padding: 10px; border-radius: 4px; flex: 1; text-align: center; }
+        .stat-value { font-size: 24px; font-weight: bold; color: #4ec9b0; }
+    </style>
+</head>
+<body>
+    <h1>Fluid Debugger & Diagnostics</h1>
+    
+    <div class="section">
+        <h2>Frame Stats</h2>
+        <div class="stats">
+            <div class="stat-box"><div>Physics DT</div><div id="stat-dt" class="stat-value">0.0</div></div>
+            <div class="stat-box"><div>Render FPS</div><div id="stat-fps" class="stat-value">0.0</div></div>
+            <div class="stat-box"><div>Entity Count</div><div id="stat-entities" class="stat-value">0</div></div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Live Logs</h2>
+        <div id="logs"></div>
+    </div>
+
+    <div class="section">
+        <h2>Report Bug</h2>
+        <form id="bug-form">
+            <input type="text" id="bug-id" placeholder="Bug ID (e.g. BUG-010)" required>
+            <select id="bug-severity">
+                <option value="Critical">Critical</option>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+                <option value="Review">Pending Claude Review</option>
+                <option value="Process">Process Violations</option>
+            </select>
+            <input type="text" id="bug-component" placeholder="Component (e.g. core/ecs)" required>
+            <input type="text" id="bug-reported-by" placeholder="Reported By (e.g. c6_debugger)" required>
+            <textarea id="bug-description" placeholder="Description (one precise sentence)" required></textarea>
+            <textarea id="bug-reproduction" placeholder="Reproduction (minimal steps or N/A)" required></textarea>
+            <button type="submit">Submit Bug</button>
+        </form>
+    </div>
+
+    <div class="section">
+        <h2>Bug Pool Viewer</h2>
+        <pre id="bug-pool-content">Loading...</pre>
+    </div>
+
+    <script>
+        // Poll for logs
+        let lastLogSize = 0;
+        setInterval(() => {
+            fetch('/logs')
+                .then(r => r.json())
+                .then(data => {
+                    const logsDiv = document.getElementById('logs');
+                    let newLogs = false;
+                    for (let i = lastLogSize; i < data.lines.length; i++) {
+                        const line = data.lines[i];
+                        if (line.trim() === '') continue;
+                        const match = line.match(/\[LEVEL:(\w+)\]/);
+                        const levelClass = match ? 'log-' + match[1] : '';
+                        
+                        const div = document.createElement('div');
+                        div.className = 'log-line ' + levelClass;
+                        div.textContent = line;
+                        logsDiv.appendChild(div);
+                        newLogs = true;
+                    }
+                    if (newLogs) {
+                        logsDiv.scrollTop = logsDiv.scrollHeight;
+                        lastLogSize = data.lines.length;
+                    }
+                });
+        }, 1000);
+
+        // Poll for stats
+        setInterval(() => {
+            fetch('/stats')
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('stat-dt').textContent = data.dt.toFixed(4);
+                    document.getElementById('stat-fps').textContent = data.fps.toFixed(1);
+                    document.getElementById('stat-entities').textContent = data.entities;
+                });
+        }, 1000);
+
+        // Poll for BUG_POOL.md
+        setInterval(() => {
+            fetch('/bug_pool')
+                .then(r => r.text())
+                .then(text => {
+                    document.getElementById('bug-pool-content').textContent = text;
+                });
+        }, 5000);
+
+        // Bug submission
+        document.getElementById('bug-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const bug = {
+                id: document.getElementById('bug-id').value,
+                severity: document.getElementById('bug-severity').value,
+                component: document.getElementById('bug-component').value,
+                reported_by: document.getElementById('bug-reported-by').value,
+                description: document.getElementById('bug-description').value,
+                reproduction: document.getElementById('bug-reproduction').value
+            };
+            fetch('/report_bug', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(bug)
+            }).then(() => {
+                alert('Bug reported successfully!');
+                document.getElementById('bug-form').reset();
+                // Immediately refresh bug pool
+                fetch('/bug_pool')
+                    .then(r => r.text())
+                    .then(text => document.getElementById('bug-pool-content').textContent = text);
+            });
+        });
+    </script>
+</body>
+</html>

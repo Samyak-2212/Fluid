@@ -1,4 +1,4 @@
-<!-- version: 2 -->
+<!-- version: 3 -->
 # Config Schema
 
 All tunables live in `config/`. Format: TOML.
@@ -93,6 +93,11 @@ Document the new flag's schema here immediately after it is added.
 |-------------|-------|--------|
 | `config/builder_flags.toml` | C2 | Created by C2 at initialization |
 | `config/physics_core.toml` | C4 | Created by C4 at interfaces-published gate |
+| `config/fluid_simulator.toml` | C5 | Scaffolded by C5 |
+| `config/aerodynamic_simulator.toml` | C5 | Scaffolded by C5 |
+| `config/thermodynamic_simulator.toml` | C5 | Scaffolded by C5 |
+| `config/fem_structural.toml` | C5 | Scaffolded by C5 |
+| `config/motion_force_simulator.toml` | C5 | Scaffolded by C5 |
 
 ## physics_core.toml — Key Schema
 
@@ -103,3 +108,54 @@ All values are loaded at runtime. Typed defaults in code — no runtime panics o
 |-----|------|---------|-------------|
 | `constraint_solver_iterations` | integer | `10` | Maximum sequential impulse solver iterations per frame. Higher = more accurate, more CPU. Typical range: 5–20. |
 | `broadphase_cell_size` | float | `1.0` | Spatial hash cell size in metres. Set to ≈ 2× largest object bounding radius. Smaller cells reduce false positives but increase memory. |
+
+## fluid_simulator.toml — Key Schema
+
+File: `config/fluid_simulator.toml`
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `sph_particle_cap` | integer | `10000` | Maximum number of particles in SPH mode for Tier 0 |
+| `cfd_grid_resolution` | array | `[64, 64, 64]` | Base grid resolution for CFD mode (Tier 1+) |
+| `sph_smoothing_multiplier` | float | `1.2` | Smoothing length multiplier for SPH kernel |
+
+## aerodynamic_simulator.toml — Key Schema
+
+File: `config/aerodynamic_simulator.toml`
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `air_density` | float | `1.225` | Default air density in kg/m^3 (sea level standard) |
+| `air_viscosity` | float | `1.81e-5` | Dynamic viscosity of air in Pa*s (N*s/m^2) |
+| `default_reference_area` | float | `1.0` | Default reference area for aerodynamic bodies in m^2 |
+
+## thermodynamic_simulator.toml — Key Schema
+
+File: `config/thermodynamic_simulator.toml`
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `default_heat_capacity` | float | `1000.0` | Default specific heat capacity in J/(kg*K) |
+| `default_thermal_conductivity` | float | `0.026` | Default thermal conductivity in W/(m*K) |
+| `ambient_temperature` | float | `293.15` | Ambient temperature in Kelvin |
+
+## fem_structural.toml — Key Schema
+
+File: `config/fem_structural.toml`
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `default_youngs_modulus` | float | `1e6` | Default Young's modulus in Pascals |
+| `default_poissons_ratio` | float | `0.3` | Default Poisson's ratio |
+| `max_newton_iterations` | integer | `20` | Maximum Newton-Raphson iterations for nonlinear solver (Tier 2) |
+| `solver_tolerance` | float | `1e-6` | Solver error tolerance for convergence |
+
+## motion_force_simulator.toml — Key Schema
+
+File: `config/motion_force_simulator.toml`
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `gravity_vector` | array | `[0.0, -9.81, 0.0]` | Global gravity vector (m/s^2) |
+| `default_actuator_max_force` | float | `1000.0` | Default max force for generic actuators in Newtons |
+| `default_joint_spring_constant` | float | `5000.0` | Default spring constant for joint constraints in N/m |

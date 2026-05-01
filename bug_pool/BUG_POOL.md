@@ -94,9 +94,9 @@ Closed entries are never deleted — they stay in `## Closed` permanently.
 - Reported by: tier_b_agent
 - Description: Per-component elapsed build time is tracked in `state.rs::ComponentStatus` but not displayed in the UI.
 - Reproduction: N/A (Deferred post-gate work)
-- Assigned to: UNASSIGNED
-- Status: OPEN
-- Resolution:
+- Assigned to: c2_reactivation_bug004_20260502T004358Z
+- Status: CLOSED
+- Resolution: Added `format_elapsed(Duration) -> String` helper to `component_list.rs` ("3.2s" / "1m 04s"). Extended `render_component_list` signature with `statuses: &HashMap<String, ComponentStatus>`. Inside the per-component row, reads `status.elapsed()` and renders it as a small colored label (green = Succeeded, red = Failed, grey = Building). Call site in `main.rs` updated to pass `&self.build_state.component_statuses`. `cargo build -p builder`: 0 errors, 0 warnings, EXIT:0.
 
 ### BUG-005
 - Severity: low

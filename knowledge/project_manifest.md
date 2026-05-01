@@ -1,13 +1,14 @@
-<!-- version: 20 -->
+<!-- version: 22 -->
 # Project Manifest
 
 ## Project: Fluid
 Language: Rust (edition 2021+)
 Root session: root_coordinator_20260427T032847Z
-Status last updated: 2026-05-02T00:13:50+05:30
+Status last updated: 2026-05-02T00:39:35+05:30
 C3 Last clean checkpoint SHA: d00186b1b1619c22a85f1ed347ca650a055dd019
 C4 Last clean checkpoint SHA: a4018a7aa5dd7d52baa3c0b77b8d9d1e11a6a276
 C5 Last clean checkpoint SHA: d710739d168dd34844b8aa09529f8db98f7b9a59
+qa_allowlist_fix Last clean checkpoint SHA: b6726b7
 
 ---
 
@@ -16,7 +17,7 @@ C5 Last clean checkpoint SHA: d710739d168dd34844b8aa09529f8db98f7b9a59
 | Coordinator | Domain | Status | Gate Signal | Notes |
 |-------------|--------|--------|-------------|-------|
 | C1 — Core Systems | `core/` | COMPLETE | `[C1_INTERFACES_PUBLISHED]` ✅ `[C1_COMPLETE]` ✅ | All impl done; 28 tests pass; BUG-001 CLOSED |
-| C2 — Build System | `builder/` | COMPLETE | `[C2_COMPLETE]` ✅ | cargo build -p builder: 0 errors, 0 warnings |
+| C2 — Build System | `builder/` | COMPLETE | `[C2_COMPLETE]` ✅ | cargo build -p builder: 0 errors, 0 warnings; BUG-003 CLOSED (reactivation); BUG-004 CLOSED (reactivation) |
 | C3 — Rendering | `rendering/` | COMPLETE | `[C3_COMPLETE]` ✅ | 12 tests pass; BUG-008/009 CLOSED (C7); BUG-012 CLOSED (c3_reactivation_bug012) |
 | C4 — Physics Core | `physics_core/` | COMPLETE | `[C4_INTERFACES_PUBLISHED]` ✅ `[C4_COMPLETE]` ✅ | 22 tests pass; full impl complete |
 | C5 — Sim Components | `components/` | **COMPLETE** | `[C5_COMPLETE]` ✅ | 26 tests pass; SPH/CFD/Aero/Thermo/FEM/Motion implemented |
@@ -149,6 +150,8 @@ C5 (Sim Components) may now begin.
 [RETIRED: c1_bugfix_20260502T002703Z at 2026-05-02T00:27:03+05:30]
 [RETIRED: qa_allowlist_fix_20260502T003935Z at 2026-05-02T00:39:35+05:30]
 [RETIRED: c3_reactivation_bug012_20260502T003829Z at 2026-05-02T00:40:00+05:30]
+[RETIRED: c2_reactivation_20260502T003850Z at 2026-05-02T00:38:50+05:30]
+[RETIRED: c2_reactivation_bug004_20260502T004358Z at 2026-05-02T00:43:58+05:30]
 
 ---
 
@@ -159,6 +162,8 @@ C5 (Sim Components) may now begin.
 [REACTIVATED: c1_bugfix_20260502T002703Z at 2026-05-02T00:27:03+05:30 for BUG-001]
 [REACTIVATED: qa_allowlist_fix_20260502T003935Z at 2026-05-02T00:39:35+05:30 for BUG-007]
 [REACTIVATED: c3_reactivation_bug012_20260502T003829Z at 2026-05-02T00:38:29+05:30 for BUG-012]
+[REACTIVATED: c2_reactivation_20260502T003850Z at 2026-05-02T00:38:50+05:30 for BUG-003]
+[REACTIVATED: c2_reactivation_bug004_20260502T004358Z at 2026-05-02T00:43:58+05:30 for BUG-004]
 
 ---
 
@@ -171,6 +176,8 @@ C5 (Sim Components) may now begin.
 2026-05-02T00:27:03+05:30 c1_bugfix_20260502T002703Z 3 ~200 BUG-001: split World into WorldAny (object-safe erased) + World (typed extension blanket impl); 28 tests pass, 0 warnings
 2026-05-02T00:40:00+05:30 c3_reactivation_bug012_20260502T003829Z 3 ~10 BUG-012: guard caps.formats[0] with .get(0).copied().unwrap_or(Bgra8UnormSrgb); 12 tests pass
 2026-05-02T00:39:35+05:30 qa_allowlist_fix_20260502T003935Z 2 ~40 BUG-007: added Root Anomaly Allowlist to coordinators/quality_gate/PROMPT.md; BUG-007 CLOSED
+2026-05-02T00:38:50+05:30 c2_reactivation_20260502T003850Z 3 ~180 BUG-003: replace hardcoded default_components() with dynamic Cargo.toml reader (load_components); fem_structural requires=[motion_force_simulator] now surfaced; 0 errors 0 warnings
+2026-05-02T00:43:58+05:30 c2_reactivation_bug004_20260502T004358Z 2 ~40 BUG-004: add format_elapsed helper + statuses param to render_component_list; elapsed displayed as colored small label per component; 0 errors 0 warnings
 ---
 
 ## Notes

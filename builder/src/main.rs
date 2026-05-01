@@ -2,6 +2,8 @@
 //
 // Fluid Builder — egui-based native build UI.
 // Loads all configuration from config/builder_flags.toml at startup.
+// Component metadata ([package.metadata.fluid].requires) is read from each member
+// crate's Cargo.toml at startup — no hardcoded component lists.
 // Invokes cargo as a background subprocess with non-blocking output streaming.
 // Termination uses child.kill() — platform-safe on Windows and Unix.
 
@@ -18,9 +20,38 @@ use ui::flag_panel::render_flag_panel;
 use ui::output_panel::render_output_panel;
 
 use eframe::egui;
+use serde::Deserialize;
 use std::path::PathBuf;
 use std::process::Command;
 use std::time::Instant;
+
+// ---------------------------------------------------------------------------
+// Cargo.toml deserialization helpers for [package.metadata.fluid]
+// ---------------------------------------------------------------------------
+
+#[derive(Deserialize, Default)]
+struct CargoPackage {
+    name: String,
+    #[serde(default)]
+    metadata: CargoMetadata,
+}
+
+#[derive(Deserialize, Default)]
+struct CargoMetadata {
+    #[serde(default)]
+    fluid: FluidMetadata,
+}
+
+#[derive(Deserialize, Default)]
+struct FluidMetadata {
+    #[serde(default)]
+    requires: Vec<String>,
+}
+
+#[derive(Deserialize)]
+struct CargoToml {
+    package: CargoPackage,
+}
 
 /// Locate config/builder_flags.toml relative to the workspace root.
 /// Walks up from the executable path until finding a directory containing Cargo.toml.
@@ -45,9 +76,113 @@ fn locate_config() -> PathBuf {
     cwd.join("config").join("builder_flags.toml")
 }
 
-/// Build the default component list.
-/// In a real deployment the metadata would be read from each crate's Cargo.toml.
-fn default_components() -> Vec<ComponentEntry> {
+/// Locate the workspace root directory.
+/// Uses the same walk-up heuristic as locate_config(), but stops at the directory
+/// that contains the root Cargo.toml (i.e. the one with [workspace]).
+fn locate_workspace_root() -> Option<PathBuf> {
+    let cwd = std::env::current_dir().unwrap_or_default();
+    // Check cwd first.
+    if cwd.join("Cargo.toml").exists() {
+        return Some(cwd.clone());
+    }
+    // Walk up from executable.
+    let mut dir = std::env::current_exe().unwrap_or_default();
+    dir.pop(); // strip binary name
+    for _ in 0..8 {
+        if dir.join("Cargo.toml").exists() {
+            return Some(dir.clone());
+        }
+        if !dir.pop() {
+            break;
+        }
+    }
+    None
+}
+
+/// Derive a human-readable label from a crate name.
+/// "fluid_simulator" → "Fluid Simulator"
+fn label_from_name(name: &str) -> String {
+    name.split('_')
+        .map(|word| {
+            let mut chars = word.chars();
+            match chars.next() {
+                None => String::new(),
+                Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
+            }
+        })
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
+/// Load the component list by reading [package.metadata.fluid] from each member
+/// crate's Cargo.toml at builder startup.
+///
+/// Component crate paths relative to the workspace root are fixed by the project
+/// layout defined in the root Cargo.toml. If a crate's Cargo.toml cannot be parsed,
+/// the component is still included but with an empty `requires` list — no runtime
+/// panics.
+fn load_components() -> Vec<ComponentEntry> {
+    // Component crate paths relative to workspace root (matches root Cargo.toml members).
+    const COMPONENT_PATHS: &[&str] = &[
+        "components/fluid_simulator",
+        "components/aerodynamic_simulator",
+        "components/motion_force_simulator",
+        "components/thermodynamic_simulator",
+        "components/fem_structural",
+    ];
+
+    let workspace_root = match locate_workspace_root() {
+        Some(p) => p,
+        None => {
+            eprintln!("Warning: workspace root not found — using hardcoded component defaults");
+            return hardcoded_components();
+        }
+    };
+
+    let mut entries = Vec::with_capacity(COMPONENT_PATHS.len());
+
+    for rel_path in COMPONENT_PATHS {
+        let cargo_toml_path = workspace_root.join(rel_path).join("Cargo.toml");
+        let name = rel_path.split('/').last().unwrap_or(rel_path);
+
+        let (crate_name, requires) = match std::fs::read_to_string(&cargo_toml_path) {
+            Err(e) => {
+                eprintln!(
+                    "Warning: could not read {}: {} — using empty requires",
+                    cargo_toml_path.display(),
+                    e
+                );
+                (name.to_string(), vec![])
+            }
+            Ok(contents) => match toml::from_str::<CargoToml>(&contents) {
+                Err(e) => {
+                    eprintln!(
+                        "Warning: could not parse {}: {} — using empty requires",
+                        cargo_toml_path.display(),
+                        e
+                    );
+                    (name.to_string(), vec![])
+                }
+                Ok(parsed) => (
+                    parsed.package.name.clone(),
+                    parsed.package.metadata.fluid.requires,
+                ),
+            },
+        };
+
+        entries.push(ComponentEntry {
+            label: label_from_name(&crate_name),
+            name: crate_name,
+            requires,
+            selected: false,
+        });
+    }
+
+    entries
+}
+
+/// Hardcoded fallback used only when the workspace root cannot be located.
+fn hardcoded_components() -> Vec<ComponentEntry> {
     vec![
         ComponentEntry {
             name: "fluid_simulator".into(),
@@ -76,7 +211,7 @@ fn default_components() -> Vec<ComponentEntry> {
         ComponentEntry {
             name: "fem_structural".into(),
             label: "FEM Structural".into(),
-            requires: vec![],
+            requires: vec!["motion_force_simulator".into()],
             selected: false,
         },
     ]
@@ -111,7 +246,7 @@ impl FluidBuilderApp {
 
         FluidBuilderApp {
             flags,
-            components: default_components(),
+            components: load_components(),
             build_state: BuildState::new(),
             process: None,
             component_warning: None,
@@ -334,7 +469,7 @@ impl eframe::App for FluidBuilderApp {
             .show_inside(ui, |ui| {
                 ui.heading("Components");
                 ui.separator();
-                let warn = render_component_list(ui, &mut self.components);
+                let warn = render_component_list(ui, &mut self.components, &self.build_state.component_statuses);
                 if let Some(w) = warn {
                     self.component_warning = Some(w);
                 }

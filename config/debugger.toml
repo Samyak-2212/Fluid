@@ -1,0 +1,4 @@
+debugger_http_port = 8081
+log_level = "DEBUG"               # minimum level to record
+max_active_log_size_mb = 100      # rotate if exceeded
+session_id_format = "timestamp"   # "timestamp" | "uuid"

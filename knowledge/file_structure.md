@@ -1,8 +1,8 @@
-<!-- version: 8 -->
+<!-- version: 9 -->
 # File Structure
 
-Last updated by: C5 sim components coordinator (session: c5_impl_20260429T214423Z)
-Reflects C5 full implementation: SPH, CFD, aerodynamics, thermodynamics, FEM, force actuators. Merged onto version: 7.
+Last updated by: C6 debugger coordinator (session: c6_debugger_complete_20260430T071000Z)
+Reflects C6 full implementation: Debugger API and HTTP UI. Merged onto version: 8.
 
 ## Root
 
@@ -58,7 +58,7 @@ All `PROMPT.md` files are Tier A only. Documentation work reads them for crate i
 | `physics_core/` | dir | C4 | **complete** | integrators, collision (GJK/EPA), constraints, rigid_body implemented; 22 tests pass |
 | `rendering/` | dir | C3 | **complete** | wgpu init, Tier 0 CPU rasterizer, scene renderer, HTTP preview; 12 tests pass |
 | `builder/` | dir | C2 | complete | Native build UI |
-| `debugger/` | dir | C6 | pending | Localhost debugger surface |
+| `debugger/` | dir | C6 | **complete** | Localhost debugger surface (port 8081) |
 | `components/fluid_simulator/` | dir | C5 | **implemented** | SPH (Wendland C2 + XSPH + Leap-Frog) + CFD (Chorin projection) + GPU FFI trait |
 | `components/aerodynamic_simulator/` | dir | C5 | **implemented** | Thin-aerofoil lift/drag model (C_L, C_D polar) |
 | `components/motion_force_simulator/` | dir | C5 | **implemented** | Gravity, spring-damper, hydraulic actuator, electric motor, joints |
@@ -103,7 +103,7 @@ All `PROMPT.md` files are Tier A only. Documentation work reads them for crate i
 | `config/core.toml` | file | C1 | active | Timestep and Rayon defaults |
 | `config/rendering.toml` | file | C3 | **active** | preview_http_port, frame, camera, debug_overlay keys |
 | `config/physics_core.toml` | file | C4 | **active** | constraint_solver_iterations=10, broadphase_cell_size=1.0 |
-| `config/debugger.toml` | file | C6 | pending | Planned debugger config |
+| `config/debugger.toml` | file | C6 | **active** | Debugger config (http port, logs) |
 | `config/fluid_simulator.toml` | file | C5 | active | Created by C5 |
 | `config/aerodynamic_simulator.toml` | file | C5 | active | Created by C5 |
 | `config/thermodynamic_simulator.toml` | file | C5 | active | Created by C5 |

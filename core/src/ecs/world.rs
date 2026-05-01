@@ -1,11 +1,15 @@
 // [NEEDS_REVIEW: claude]
 //! Concrete archetype-based ECS world implementation.
 //!
-//! Provides [`ArchetypeWorld`], a concrete type implementing the [`World`] trait.
+//! Provides [`ArchetypeWorld`], a concrete type implementing the [`WorldAny`] trait.
 //! Internal storage uses a `HashMap<EntityId, HashMap<TypeId, Box<dyn Any + Send + Sync>>>`
 //! (component-map-per-entity) layout.  This is deliberately simple: correctness and
 //! interface coverage over performance.  A true archetype table (column-per-component,
 //! contiguous memory) is a future Tier A optimisation and should not be attempted here.
+//!
+//! [`WorldAny`] is the object-safe erased trait implemented here. The typed [`World`]
+//! extension methods (`insert<C>`, `get<C>`, `get_mut<C>`, `remove<C>`) are provided
+//! automatically via the blanket `impl<T: WorldAny> World for T`.
 //!
 //! # Usage
 //! ```rust,ignore
@@ -19,7 +23,7 @@
 use std::any::{Any, TypeId};
 use std::collections::HashMap;
 
-use super::traits::{Component, EntityId, World};
+use super::traits::{EntityId, WorldAny};
 
 // ── Storage ──────────────────────────────────────────────────────────────────
 
@@ -29,6 +33,9 @@ type ComponentMap = HashMap<TypeId, Box<dyn Any + Send + Sync>>;
 ///
 /// Every entity owns a `HashMap<TypeId, Box<dyn Any + Send + Sync>>` that stores
 /// its components by type.  Lookup is O(1) average per component type per entity.
+///
+/// Implements [`WorldAny`] (object-safe, erased API). The typed [`World`] extension
+/// API is automatically available via `impl<T: WorldAny> World for T`.
 pub struct ArchetypeWorld {
     entities: HashMap<EntityId, ComponentMap>,
     next_id: u64,
@@ -56,9 +63,17 @@ impl Default for ArchetypeWorld {
     }
 }
 
-// ── World impl ───────────────────────────────────────────────────────────────
+// ── WorldAny impl ─────────────────────────────────────────────────────────────
+//
+// All type-erased methods live here. The typed `World` extension trait methods
+// (`insert<C>`, `get<C>`, `get_mut<C>`, `remove<C>`) are default-implemented in
+// `traits.rs` and require no code here.
 
-impl World for ArchetypeWorld {
+// Safety: ArchetypeWorld owns its data exclusively and holds no raw pointers.
+unsafe impl Send for ArchetypeWorld {}
+unsafe impl Sync for ArchetypeWorld {}
+
+impl WorldAny for ArchetypeWorld {
     fn spawn(&mut self) -> EntityId {
         let id = EntityId(self.next_id);
         self.next_id += 1;
@@ -66,37 +81,46 @@ impl World for ArchetypeWorld {
         id
     }
 
-    fn insert<C: Component>(&mut self, entity: EntityId, component: C) {
+    fn despawn(&mut self, entity: EntityId) {
+        self.entities.remove(&entity);
+    }
+
+    fn insert_erased(
+        &mut self,
+        entity: EntityId,
+        type_id: TypeId,
+        component: Box<dyn Any + Send + Sync>,
+    ) {
         if let Some(map) = self.entities.get_mut(&entity) {
-            map.insert(TypeId::of::<C>(), Box::new(component));
+            map.insert(type_id, component);
         }
-        // Silently ignore insert on a non-existent entity.  Callers must
-        // spawn before inserting.  Panicking would be acceptable but is
+        // Silently ignore insert on a non-existent entity. Callers must
+        // spawn before inserting. Panicking would be acceptable but is
         // more disruptive during early development.
     }
 
-    fn get<C: Component>(&self, entity: EntityId) -> Option<&C> {
+    fn get_erased(&self, entity: EntityId, type_id: TypeId) -> Option<&(dyn Any + Send + Sync)> {
         self.entities
             .get(&entity)?
-            .get(&TypeId::of::<C>())?
-            .downcast_ref::<C>()
+            .get(&type_id)
+            .map(|b| b.as_ref())
     }
 
-    fn get_mut<C: Component>(&mut self, entity: EntityId) -> Option<&mut C> {
+    fn get_erased_mut(
+        &mut self,
+        entity: EntityId,
+        type_id: TypeId,
+    ) -> Option<&mut (dyn Any + Send + Sync)> {
         self.entities
             .get_mut(&entity)?
-            .get_mut(&TypeId::of::<C>())?
-            .downcast_mut::<C>()
+            .get_mut(&type_id)
+            .map(|b| b.as_mut())
     }
 
-    fn remove<C: Component>(&mut self, entity: EntityId) {
+    fn remove_erased(&mut self, entity: EntityId, type_id: TypeId) {
         if let Some(map) = self.entities.get_mut(&entity) {
-            map.remove(&TypeId::of::<C>());
+            map.remove(&type_id);
         }
-    }
-
-    fn despawn(&mut self, entity: EntityId) {
-        self.entities.remove(&entity);
     }
 }
 
@@ -105,6 +129,7 @@ impl World for ArchetypeWorld {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use super::super::traits::World;
 
     #[derive(Debug, PartialEq)]
     struct Position {
@@ -191,5 +216,17 @@ mod tests {
         world.despawn(e);
         // Must not panic.
         world.insert(e, Position { x: 0.0, y: 0.0 });
+    }
+
+    /// Verify `ArchetypeWorld` is usable as `Box<dyn WorldAny>`.
+    #[test]
+    fn archetype_world_as_dyn_world_any() {
+        let mut world: Box<dyn WorldAny> = Box::new(ArchetypeWorld::new());
+        let e = world.spawn();
+        world.insert_erased(e, TypeId::of::<Position>(), Box::new(Position { x: 1.0, y: 2.0 }));
+        let any = world.get_erased(e, TypeId::of::<Position>()).unwrap();
+        let p = any.downcast_ref::<Position>().unwrap();
+        assert_eq!(p.x, 1.0);
+        world.despawn(e);
     }
 }

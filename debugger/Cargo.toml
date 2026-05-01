@@ -12,6 +12,12 @@ tier_3 = []
 
 [dependencies]
 core = { path = "../core" }
+tiny_http = { version = "0.12" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = { version = "1.0" }
+uuid = { version = "1.0", features = ["v4"] }
+chrono = { version = "0.4" }
+toml = { version = "0.8" }
 
 [package.metadata.fluid]
 requires = ["core"]
