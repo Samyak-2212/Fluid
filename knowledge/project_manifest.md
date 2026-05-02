@@ -11,6 +11,7 @@ C5 Last clean checkpoint SHA: d710739d168dd34844b8aa09529f8db98f7b9a59
 qa_allowlist_fix Last clean checkpoint SHA: b6726b7
 conformity_fix Last clean checkpoint SHA: 1ac87610436878ab6091e62f4354f4e7596e2494
 maintenance_20260502 Last clean checkpoint SHA: d20017f
+c8_session4_20260502T Last clean checkpoint SHA: 7d6e6b0
 
 ---
 
