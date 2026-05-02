@@ -1,0 +1,33 @@
+[package]
+name = "agent_debugger"
+version.workspace = true
+edition.workspace = true
+description = "Fluid Agent Debugger (C9) — automated test harness for the GUI application"
+
+[[bin]]
+name = "agent_debugger"
+path = "src/main.rs"
+
+[features]
+default = []
+
+[dependencies]
+# HTTP client — blocking, lightweight
+ureq = { version = "2.10", features = ["json"] }
+# Screenshot capture — cross-platform (Win32, X11/Wayland portal, ScreenCaptureKit)
+xcap = { version = "0.0.14" }
+# OS-level input injection — fallback only (Windows + X11)
+enigo = { version = "0.2", default-features = false, features = ["x11rb"] }
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1" }
+# TOML config parsing
+toml = { version = "0.8" }
+# Logging
+log = { version = "0.4" }
+env_logger = { version = "0.11" }
+# CLI argument parsing
+clap = { version = "4", features = ["derive"] }
+
+[package.metadata.fluid]
+requires = []

@@ -1,0 +1,24 @@
+# config/agent_debugger.toml
+# C9 — Agent Debugger runtime configuration.
+# All fields have defaults; this file is optional.
+# Do not hardcode any of these values in source code (DEC-C9-008).
+
+# Debug server host. Must be loopback-only (DEC-009 in debug_interface_spec.md).
+host = "127.0.0.1"
+
+# Debug server port. Must match app/debug_server_port in config/app.toml.
+port = 8082
+
+# Authentication token. Leave empty for no auth (default C8 config).
+# If set, every request will include: X-Debug-Token: <token>
+token = ""
+
+# HTTP request timeout in seconds.
+timeout_secs = 10
+
+# Minimum gap between screenshot calls in milliseconds.
+# C8 rate-limits /screenshot to 2/sec (500ms minimum). Do not reduce below 500.
+screenshot_min_interval_ms = 500
+
+# Expected C8 protocol version. Abort if server reports a different version.
+expected_protocol_version = 1

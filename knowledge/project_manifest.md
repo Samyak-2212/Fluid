@@ -28,7 +28,7 @@ c8_session4_20260502T Last clean checkpoint SHA: 7d6e6b0
 | C7 — Quality Gate | (cross-cutting) | **COMPLETE** | `[C7_COMPLETE]` ✅ | All NEEDS_REVIEW queue cleared; architecture conformance passed; retirement audit complete |
 | Root | (this file) | COMPLETE | `[ROOT_COMPLETE]` ✅ | All seven coordinator gates confirmed. BUG-018/019 found and closed on first user build. |
 | C8 — GUI Application | `app/` | IN_PROGRESS | `[C8_INTERFACES_PUBLISHED]` ✅ `[C8_COMPLETE]` ⏳ | Session 4: wgpu viewport DONE (ViewportProgram+Primitive, grid floor, orbit/pan/zoom); cargo check EXIT:0. C8-FileFormat next. |
-| C9 — Agent Debugger | `agent_debugger/` | **IN_PROGRESS** | `[C9_COMPLETE]` ⏳ | Session 1: DECISIONS.md, Cargo.toml, all 8 src modules, config/agent_debugger.toml; cargo check EXIT:0. |
+| C9 — Agent Debugger | `agent_debugger/` | **COMPLETE** | `[C9_COMPLETE]` ✅ | Session 1+2: full impl + integration tests pass (Windows headless). cargo check --workspace EXIT:0. |
 
 ---
 
@@ -139,7 +139,6 @@ C5 (Sim Components) may now begin.
 <!-- Remove when session retires. C7 audits for stale entries. -->
 
 [IN_PROGRESS: c8_session4_20260502T at 2026-05-02T05:03:00Z on app/src/viewport wgpu shader integration]
-[IN_PROGRESS: c9_session1_20260502T101833Z at 2026-05-02T10:18:33+05:30 on agent_debugger/ full implementation]
 
 ---
 
@@ -160,6 +159,8 @@ C5 (Sim Components) may now begin.
 [RETIRED: c3_reactivation_bug012_20260502T003829Z at 2026-05-02T00:40:00+05:30]
 [RETIRED: c2_reactivation_20260502T003850Z at 2026-05-02T00:38:50+05:30]
 [RETIRED: c2_reactivation_bug004_20260502T004358Z at 2026-05-02T00:43:58+05:30]
+[RETIRED: c9_session1_20260502T101833Z at 2026-05-02T10:18:33+05:30]
+[RETIRED: c9_session2_20260502T104231Z at 2026-05-02T10:42:31+05:30]
 
 ---
 
@@ -191,6 +192,7 @@ C5 (Sim Components) may now begin.
 2026-05-02T09:36:42+05:30 c8_session1_20260502T093642Z 37 ~1200 C8 session 1: all 10 mandatory preamble steps; app skeleton (main.rs, command.rs, scene, debug_server, ui, viewport, sim_bridge, file, import, plugin, prefs, dashboard.html); config/app.toml + component_manifest.toml; agent_debugger stub; 6 sub-coordinator PROMPT.md + C9 PROMPT.md verified; knowledge files updated (dependency_graph v2, model_routing_table v2, file_structure v11, config_schema v4, project_manifest v24).
 2026-05-02T09:57:42+05:30 c8_session2_20260502T095742Z 1 ~2 Fix app/Cargo.toml: fbxcel-dom 0.9→0.0.10 (crate only has 0.0.x series); cargo check -p app: EXIT:0, 0 errors; [C8_INTERFACES_PUBLISHED] published; C9 unblocked.
 2026-05-02T10:18:33+05:30 c9_session1_20260502T101833Z 11 ~900 C9 session 1: DECISIONS.md (10 decisions), Cargo.toml (xcap+ureq+enigo+clap), error.rs, config.rs, health.rs, state.rs, control.rs, screenshot.rs, report.rs, cleanup.rs, input.rs [NEEDS_REVIEW: claude], main.rs (8 subcommands), config/agent_debugger.toml; knowledge/file_structure.md v13; cargo check -p agent_debugger: 0 errors, 0 warnings, EXIT:0.
+2026-05-02T10:42:31+05:30 c9_session2_20260502T104231Z 1 ~30 C9 session 2: integration tests (Windows headless). health/state/tree/screenshot/run/cleanup all pass. cargo check --workspace EXIT:0. [C9_COMPLETE] written.
 2026-05-02T05:03:00Z c8_session4_20260502T 5 ~600 C8-Viewport session 4: app/src/viewport/camera.rs (orbit/pan/zoom spherical Camera), app/src/viewport/pipeline.rs [NEEDS_REVIEW: claude] (wgpu LineList grid + PointList entity pipeline, mapped_at_creation upload), app/src/viewport/mod.rs [NEEDS_REVIEW: claude] (ViewportProgram+ViewportPrimitive Program/Primitive traits, orbit/pan LMB/RMB drag, scroll zoom), app/src/app.rs (view_viewport_panel → iced::widget::shader), app/Cargo.toml (bytemuck+advanced feature). cargo check -p app: EXIT:0, warnings only.
 ---
 
@@ -236,6 +238,40 @@ cargo check -p app: EXIT:0, 0 errors, 32 dead_code warnings (expected skeleton)
 Fix applied: app/Cargo.toml fbxcel-dom 0.9→0.0.10 (crate only publishes 0.0.x series)
 
 C9 (Agent Debugger) may now begin.
+
+---
+
+[C9_COMPLETE]
+Published by: C9 (session: c9_session2_20260502T104231Z)
+Timestamp: 2026-05-02T10:42:31+05:30
+All C9 gate criteria verified (Windows platform):
+- agent_debugger/DECISIONS.md — 10 architectural decisions locked (DEC-C9-001..010)
+- agent_debugger/Cargo.toml — xcap 0.0.14, ureq 2.12, enigo 0.2 (x11rb), clap 4, serde, toml
+- agent_debugger/src/error.rs — DebugError enum, no unwrap() in crate
+- agent_debugger/src/config.rs — AgentDebuggerConfig, workspace walk-up loader
+- agent_debugger/src/health.rs — GET /health, protocol_version=1 check
+- agent_debugger/src/state.rs — GET /state, GET /tree, GET /logs
+- agent_debugger/src/control.rs — POST /control, typed constructors
+- agent_debugger/src/screenshot.rs — PNG/NotImplemented/Headless variants, 500ms rate limit
+- agent_debugger/src/report.rs — SessionReport, state+widget diffs, report.json
+- agent_debugger/src/cleanup.rs — cleanup --session and --committed
+- agent_debugger/src/input.rs — enigo fallback [NEEDS_REVIEW: claude]
+- agent_debugger/src/main.rs — 8 subcommands: run/health/state/tree/logs/screenshot/control/cleanup
+- config/agent_debugger.toml — all tunables, no hardcoded values
+- .gitignore confirmed: agent_debugger/sessions/**/*.png present
+Integration tests (Windows headless vs C8 debug server at 127.0.0.1:8082):
+  GET /health → ok=true protocol_version=1 ✅
+  GET /state → {"headless":true,...} ✅
+  GET /tree → {"headless":true,"widgets":[]} ✅
+  GET /screenshot → {"ok":false,"error":"no_display","headless":true} ✅ (no panic)
+  run subcommand → session dir + report.json written, incomplete=true ✅
+  cleanup --committed → 0 PNGs deleted cleanly ✅
+  connection refused → clean error message, exit 1, no panic ✅
+cargo build -p agent_debugger: EXIT:0, 0 errors, 0 warnings
+cargo check --workspace: EXIT:0, 0 errors (34 dead_code warnings in app/ — pre-existing)
+Cross-platform: Windows ✅; Linux/macOS [UNVERIFIED — requires CI; xcap + enigo x11rb declared]
+
+C9 domain closed. File new agent_debugger/ bugs to BUG_POOL.md, assign to root coordinator.
 
 ---
 
