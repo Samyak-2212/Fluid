@@ -1,0 +1,81 @@
+[package]
+name = "app"
+version.workspace = true
+edition.workspace = true
+description = "Fluid — native simulation application (GUI)"
+
+[[bin]]
+name = "fluid"
+path = "src/main.rs"
+
+[features]
+default = []
+tier_0 = []
+tier_1 = []
+tier_2 = []
+tier_3 = []
+
+[dependencies]
+# C1 core — WorldAny, units, event bus
+fluid_core = { path = "../core", package = "core" }
+
+# UI framework: iced 0.13+ with pane_grid + shader widget
+# [UNVERIFIED: confirm exact latest 0.13.x on crates.io before release]
+iced = { version = "0.13", features = ["wgpu", "canvas", "image", "tokio", "advanced"] }
+
+# wgpu — must match rendering/ crate version (29.0.1 verified)
+wgpu = { version = "29.0.1", default-features = false, features = ["wgsl", "dx12", "vulkan", "metal", "gles"] }
+
+# Debug HTTP server — same crate as C6 debugger (DEC-020)
+tiny_http = { version = "0.12.0" }
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1" }
+
+# MessagePack (map-based per DEC-011)
+rmp-serde = { version = "1" }
+
+# TOML config reading
+toml = { version = "0.8" }
+
+# Rayon for in-process Tier 0 sim (DEC-006)
+rayon = { workspace = true }
+
+# File watcher for hot-swap prefs (DEC-017) — via iced::Subscription, NOT bare threads
+notify = { version = "6", features = ["serde"] }
+
+# Arc-swap for lock-free preference reads (DEC-017)
+arc-swap = { version = "1" }
+
+# OS-standard config dir for user preferences (DEC-016)
+directories = { version = "5" }
+
+# 3D math (same version as workspace)
+glam = { workspace = true }
+
+# Zero-copy GPU buffer writes (Pod/Zeroable derives for Vertex, CameraUniforms)
+bytemuck = { version = "1", features = ["derive"] }
+
+# glTF import (C8-Import, DEC-003)
+gltf = { version = "1" }
+
+# OBJ import
+tobj = { version = "4", features = ["async"] }
+
+# STL import
+stl_io = { version = "0.7" }
+
+# FBX import — confirmed 0.0.10 (crates.io); still [UNVERIFIED: fbxcel-dom maturity — see DEC-003]
+fbxcel-dom = { version = "0.0.10", optional = true }
+
+# Screenshot capture for debug server /screenshot endpoint
+# [UNVERIFIED: xcap cross-platform headless behavior — see research_dump/_INDEX.md]
+xcap = { version = "0.0", optional = true }
+
+# Logging
+log = { version = "0.4" }
+env_logger = { version = "0.11" }
+
+[package.metadata.fluid]
+requires = ["core"]

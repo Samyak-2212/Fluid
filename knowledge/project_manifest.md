@@ -1,10 +1,10 @@
-<!-- version: 23 -->
+<!-- version: 27 -->
 # Project Manifest
 
 ## Project: Fluid
 Language: Rust (edition 2021+)
 Root session: root_coordinator_20260427T032847Z
-Status last updated: 2026-05-02T00:39:35+05:30
+Status last updated: 2026-05-02T09:57:42+05:30
 C3 Last clean checkpoint SHA: d00186b1b1619c22a85f1ed347ca650a055dd019
 C4 Last clean checkpoint SHA: a4018a7aa5dd7d52baa3c0b77b8d9d1e11a6a276
 C5 Last clean checkpoint SHA: d710739d168dd34844b8aa09529f8db98f7b9a59
@@ -26,6 +26,8 @@ maintenance_20260502 Last clean checkpoint SHA: d20017f
 | C6 — Debugger | `debugger/` | **COMPLETE** | `[C6_COMPLETE]` ✅ | HTTP debugger API + UI implemented |
 | C7 — Quality Gate | (cross-cutting) | **COMPLETE** | `[C7_COMPLETE]` ✅ | All NEEDS_REVIEW queue cleared; architecture conformance passed; retirement audit complete |
 | Root | (this file) | COMPLETE | `[ROOT_COMPLETE]` ✅ | All seven coordinator gates confirmed. BUG-018/019 found and closed on first user build. |
+| C8 — GUI Application | `app/` | IN_PROGRESS | `[C8_INTERFACES_PUBLISHED]` ✅ `[C8_COMPLETE]` ⏳ | Session 4: wgpu viewport DONE (ViewportProgram+Primitive, grid floor, orbit/pan/zoom); cargo check EXIT:0. C8-FileFormat next. |
+| C9 — Agent Debugger | `agent_debugger/` | **IN_PROGRESS** | `[C9_COMPLETE]` ⏳ | Session 1: DECISIONS.md, Cargo.toml, all 8 src modules, config/agent_debugger.toml; cargo check EXIT:0. |
 
 ---
 
@@ -135,6 +137,9 @@ C5 (Sim Components) may now begin.
 <!-- Format: [IN_PROGRESS: <agent_id> at <timestamp> on <task>] -->
 <!-- Remove when session retires. C7 audits for stale entries. -->
 
+[IN_PROGRESS: c8_session4_20260502T at 2026-05-02T05:03:00Z on app/src/viewport wgpu shader integration]
+[IN_PROGRESS: c9_session1_20260502T101833Z at 2026-05-02T10:18:33+05:30 on agent_debugger/ full implementation]
+
 ---
 
 ## Retired Sessions
@@ -182,6 +187,10 @@ C5 (Sim Components) may now begin.
 2026-05-02T00:43:58+05:30 c2_reactivation_bug004_20260502T004358Z 2 ~40 BUG-004: add format_elapsed helper + statuses param to render_component_list; elapsed displayed as colored small label per component; 0 errors 0 warnings
 2026-05-02T00:58:35+05:30 conformity_fix_20260502T005835Z 26 ~150 [TIER_A_REVIEW] BUG-013: expand Root Anomaly Allowlist; BUG-014: NewmarkBetaState units exception approved; BUG-015: clear stale NEEDS_REVIEW tags in 19 files; BUG-016: file_structure.md self-version fixed; BUG-017: guard caps.alpha_modes[0]. All 17 bugs now CLOSED.
 2026-05-02T01:25:48+05:30 root_coordinator_20260502T012146Z 3 ~30 BUG-018: fix NewmarkBeta::step to displacement-form (Hughes §9.2); 26/26 physics_core tests pass. BUG-019: suppress spurious unused_imports in debugger/http_server.rs; 0 warnings. Full workspace: 86 tests, 0 failures.
+2026-05-02T09:36:42+05:30 c8_session1_20260502T093642Z 37 ~1200 C8 session 1: all 10 mandatory preamble steps; app skeleton (main.rs, command.rs, scene, debug_server, ui, viewport, sim_bridge, file, import, plugin, prefs, dashboard.html); config/app.toml + component_manifest.toml; agent_debugger stub; 6 sub-coordinator PROMPT.md + C9 PROMPT.md verified; knowledge files updated (dependency_graph v2, model_routing_table v2, file_structure v11, config_schema v4, project_manifest v24).
+2026-05-02T09:57:42+05:30 c8_session2_20260502T095742Z 1 ~2 Fix app/Cargo.toml: fbxcel-dom 0.9→0.0.10 (crate only has 0.0.x series); cargo check -p app: EXIT:0, 0 errors; [C8_INTERFACES_PUBLISHED] published; C9 unblocked.
+2026-05-02T10:18:33+05:30 c9_session1_20260502T101833Z 11 ~900 C9 session 1: DECISIONS.md (10 decisions), Cargo.toml (xcap+ureq+enigo+clap), error.rs, config.rs, health.rs, state.rs, control.rs, screenshot.rs, report.rs, cleanup.rs, input.rs [NEEDS_REVIEW: claude], main.rs (8 subcommands), config/agent_debugger.toml; knowledge/file_structure.md v13; cargo check -p agent_debugger: 0 errors, 0 warnings, EXIT:0.
+2026-05-02T05:03:00Z c8_session4_20260502T 5 ~600 C8-Viewport session 4: app/src/viewport/camera.rs (orbit/pan/zoom spherical Camera), app/src/viewport/pipeline.rs [NEEDS_REVIEW: claude] (wgpu LineList grid + PointList entity pipeline, mapped_at_creation upload), app/src/viewport/mod.rs [NEEDS_REVIEW: claude] (ViewportProgram+ViewportPrimitive Program/Primitive traits, orbit/pan LMB/RMB drag, scroll zoom), app/src/app.rs (view_viewport_panel → iced::widget::shader), app/Cargo.toml (bytemuck+advanced feature). cargo check -p app: EXIT:0, warnings only.
 ---
 
 ## Notes
@@ -207,6 +216,25 @@ cargo test -p physics_core: 22 passed, 0 failed, EXIT:0
 C5 (Sim Components) may now proceed fully. C4 domain closed. File new physics_core/ bugs to BUG_POOL.md, assign to C7 for triage.
 
 [ROOT_COMPLETE]
+
+---
+
+[C8_INTERFACES_PUBLISHED]
+Published by: C8 (session: c8_session2_20260502T095742Z)
+Timestamp: 2026-05-02T09:57:42+05:30
+Gate files verified:
+- app/debug_interface_spec.md — full C8↔C9 protocol (7 endpoints, protocol_version=1)
+- app/src/debug_server/mod.rs — tiny_http server, 127.0.0.1:8082, all 7 endpoints, RwLock snapshot
+- coordinators/ui/PROMPT.md — C8-UI sub-coordinator spec
+- coordinators/viewport/PROMPT.md — C8-Viewport sub-coordinator spec
+- coordinators/file_format/PROMPT.md — C8-FileFormat sub-coordinator spec
+- coordinators/import/PROMPT.md — C8-Import sub-coordinator spec
+- coordinators/sim_bridge/PROMPT.md — C8-SimBridge sub-coordinator spec
+- coordinators/assets/PROMPT.md — C8-Assets sub-coordinator spec
+cargo check -p app: EXIT:0, 0 errors, 32 dead_code warnings (expected skeleton)
+Fix applied: app/Cargo.toml fbxcel-dom 0.9→0.0.10 (crate only publishes 0.0.x series)
+
+C9 (Agent Debugger) may now begin.
 
 ---
 

@@ -1,8 +1,8 @@
-<!-- version: 10 -->
+<!-- version: 14 -->
 # File Structure
 
-Last updated by: this_session_20260502T005835 (BUG-013/016 conformity fixes)
-Reflects: added CLAUDE.md, LICENSE, .codex/, target/ to root table; fixed self-version stale ref. Merged onto version: 9.
+Last updated by: c8_session4_20260502T (C8 session 4 — wgpu viewport integration)
+Reflects: app/src/viewport/ fully implemented (camera.rs, pipeline.rs, mod.rs); app/Cargo.toml updated (bytemuck, advanced). Merged onto version: 13.
 
 ## Root
 
@@ -28,11 +28,11 @@ All files in `knowledge/` are Tier A authored and maintained. Files carry a `<!-
 |------|------|-------|--------|-------|
 | `knowledge/capability_tiers.md` | file | Root | active | version: 2 (oneAPI resolved: infeasible) |
 | `knowledge/physics_contract.md` | file | Root | active | version: 1 |
-| `knowledge/dependency_graph.md` | file | Root | active | version: 1 |
+| `knowledge/dependency_graph.md` | file | Root | active | version: 2 |
 | `knowledge/model_tier_policy.md` | file | Root | active | version: 1 |
-| `knowledge/config_schema.md` | file | Root | active | version: 1 |
-| `knowledge/file_structure.md` | file | Root/C2/C5 | active | This file version: 10 |
-| `knowledge/project_manifest.md` | file | Root | active | version: 12, C5 complete |
+| `knowledge/config_schema.md` | file | Root | active | version: 4 |
+| `knowledge/file_structure.md` | file | Root/C2/C5/C8 | active | This file version: 11 |
+| `knowledge/project_manifest.md` | file | Root | active | version: 24, C8 in-progress |
 
 ## bug_pool/
 
@@ -54,6 +54,9 @@ All `PROMPT.md` files are Tier A only. Documentation work reads them for crate i
 | `coordinators/sim_components/*/PROMPT.md` | file | C5 | active | Sub-coordinator prompts (7 total) |
 | `coordinators/debugger/PROMPT.md` | file | Root | active | C6 specification |
 | `coordinators/quality_gate/PROMPT.md` | file | Root | active | C7 specification |
+| `coordinators/app/PROMPT.md` | file | Root | active | C8 specification |
+| `coordinators/app/*/PROMPT.md` | file | C8 | planned | Sub-coordinator prompts (6 planned: C8-UI, C8-Viewport, C8-FileFormat, C8-Import, C8-SimBridge, C8-Assets) |
+| `coordinators/agent_debugger/PROMPT.md` | file | C8 | planned | C9 specification (authored by C8 at [C8_INTERFACES_PUBLISHED]) |
 
 ## Crate Directories
 
@@ -64,6 +67,11 @@ All `PROMPT.md` files are Tier A only. Documentation work reads them for crate i
 | `rendering/` | dir | C3 | **complete** | wgpu init, Tier 0 CPU rasterizer, scene renderer, HTTP preview; 12 tests pass |
 | `builder/` | dir | C2 | complete | Native build UI |
 | `debugger/` | dir | C6 | **complete** | Localhost debugger surface (port 8081) |
+| `app/` | dir | C8 | **in-progress** | Fluid GUI app — Session 4: ViewportProgram+Primitive wgpu shader implemented; orbit/pan/zoom camera; grid floor pipeline; cargo check EXIT:0. |
+| `app/src/viewport/camera.rs` | file | C8 | **active** | Orbit camera: spherical coords, view_proj(), orbit/pan/zoom methods |
+| `app/src/viewport/pipeline.rs` | file | C8 | **active** | [NEEDS_REVIEW: claude] ViewportPipelineState: wgpu LineList grid + PointList entity pipelines, mapped_at_creation upload |
+| `app/src/viewport/mod.rs` | file | C8 | **active** | [NEEDS_REVIEW: claude] ViewportProgram (Program trait), ViewportPrimitive (Primitive trait), DragState, ViewportInteractState |
+| `agent_debugger/` | dir | C9 | **in-progress** | Agent test harness — screenshot, widget control, protocol conformance |
 | `components/fluid_simulator/` | dir | C5 | **implemented** | SPH (Wendland C2 + XSPH + Leap-Frog) + CFD (Chorin projection) + GPU FFI trait |
 | `components/aerodynamic_simulator/` | dir | C5 | **implemented** | Thin-aerofoil lift/drag model (C_L, C_D polar) |
 | `components/motion_force_simulator/` | dir | C5 | **implemented** | Gravity, spring-damper, hydraulic actuator, electric motor, joints |
@@ -114,6 +122,9 @@ All `PROMPT.md` files are Tier A only. Documentation work reads them for crate i
 | `config/thermodynamic_simulator.toml` | file | C5 | active | Created by C5 |
 | `config/fem_structural.toml` | file | C5 | active | Created by C5 |
 | `config/motion_force_simulator.toml` | file | C5 | active | Created by C5 |
+| `config/app.toml` | file | C8 | planned | debug_server_port, debug_server_token, log_level |
+| `config/component_manifest.toml` | file | C8 | planned | Component plugin registry |
+| `config/agent_debugger.toml` | file | C9 | **active** | host, port, token, timeout_secs, screenshot_min_interval_ms |
 
 ## pack/
 
@@ -128,6 +139,8 @@ All `PROMPT.md` files are Tier A only. Documentation work reads them for crate i
 | `pack/c5_scaffold_20260429T213456Z/` | dir | C5 | active | C5 scaffold session context |
 | `pack/c5_impl_20260429T214423Z/` | dir | C5 | active | C5 implementation checkpoint (soft retire) |
 | `pack/c5_complete_20260430T064800Z/` | dir | C5 | active | C5 gate-verified completion pack |
+| `pack/c8/` | dir | C8 | planned | C8 session pack dir (LATEST.md + MANIFEST.md) |
+| `pack/c9/` | dir | C9 | **active** | C9 session pack dir (LATEST.md + MANIFEST.md) |
 
 ## knowledge_b/
 
