@@ -1,4 +1,4 @@
-<!-- version: 30 -->
+<!-- version: 31 -->
 # Project Manifest
 
 ## Project: Fluid
@@ -11,7 +11,7 @@ C9 Last clean checkpoint SHA: 2f1e7450335ece2ff2fc478e6428580204637128
 qa_allowlist_fix Last clean checkpoint SHA: b6726b7
 conformity_fix Last clean checkpoint SHA: 1ac87610436878ab6091e62f4354f4e7596e2494
 maintenance_20260502 Last clean checkpoint SHA: d20017f
-c8_session4_20260502T Last clean checkpoint SHA: 7d6e6b0
+c8_session6_layout_fix Last clean checkpoint SHA: a212f4ab677ab02730f3b1c7a48e422894324a4c
 
 ---
 
