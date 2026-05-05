@@ -69,6 +69,9 @@ pub struct ViewportState {
 pub struct ViewportProgram {
     /// Number of entities to render as placeholder spheres.
     pub entity_count: u64,
+    /// World-space positions for each entity, in outliner order.
+    /// Length equals entity_count (capped at MAX_SPHERE_POINTS).
+    pub entity_positions: Vec<[f32; 3]>,
 }
 
 // ── ViewportInteractState ─────────────────────────────────────────────────────
@@ -113,6 +116,8 @@ pub struct ViewportPrimitive {
     view_proj: Mat4,
     /// Number of entity points to draw (capped at MAX_SPHERE_POINTS).
     entity_count: u32,
+    /// World-space XYZ positions for the entity markers.
+    entity_positions: Vec<[f32; 3]>,
 }
 
 // ── Program impl ──────────────────────────────────────────────────────────────
@@ -129,8 +134,18 @@ impl shader::Program<AppMessage> for ViewportProgram {
         bounds:  Rectangle,
     ) -> ViewportPrimitive {
         let view_proj = state.camera.view_proj(bounds.width, bounds.height);
-        let entity_count = (self.entity_count as u32).min(MAX_SPHERE_POINTS);
-        ViewportPrimitive { view_proj, entity_count }
+        let count = (self.entity_count as u32).min(MAX_SPHERE_POINTS);
+        // Clamp positions vec to the same cap.
+        let positions: Vec<[f32; 3]> = self.entity_positions
+            .iter()
+            .take(count as usize)
+            .copied()
+            .collect();
+        ViewportPrimitive {
+            view_proj,
+            entity_count: count,
+            entity_positions: positions,
+        }
     }
 
     // Process mouse events → update camera orbit/pan/zoom.
@@ -264,12 +279,14 @@ impl shader::Primitive for ViewportPrimitive {
         ps.point_count = count;
 
         if count > 0 {
-            // Place placeholder sphere markers at the origin (session 5 will
-            // query actual entity positions from the ECS world).
+            // Use actual ECS world positions from the ViewportPrimitive.
             let sphere_color = [0.388, 0.400, 0.945, 0.9_f32]; // #6366f1
-            let verts: Vec<Vertex> = (0..count)
-                .map(|_i| Vertex {
-                    position: [0.0, 0.0, 0.0],
+            let verts: Vec<Vertex> = self
+                .entity_positions
+                .iter()
+                .take(count as usize)
+                .map(|&pos| Vertex {
+                    position: pos,
                     color:    sphere_color,
                 })
                 .collect();

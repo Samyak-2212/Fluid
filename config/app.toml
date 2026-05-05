@@ -1,0 +1,16 @@
+# config/app.toml
+# C8 — Fluid GUI Application server/deploy configuration.
+# User preferences are stored in the OS config dir (DEC-016), NOT here.
+# Schema: knowledge/config_schema.md § app.toml
+
+# Port for the C8 debug HTTP server.
+# Bound to 127.0.0.1 (loopback) only — not exposed to the network (DEC-009).
+debug_server_port = 8082
+
+# Optional shared secret for debug endpoint authentication.
+# If empty, no authentication check is performed.
+# Set a non-empty value to require X-Debug-Token: <token> on all debug requests.
+debug_server_token = ""
+
+# Log level: "ERROR" | "WARN" | "INFO" | "DEBUG" | "TRACE"
+log_level = "INFO"

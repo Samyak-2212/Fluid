@@ -1,0 +1,45 @@
+# config/component_manifest.toml
+# C8 — Component plugin registry.
+# C8 reads this at startup to enumerate available sim components.
+# Schema: knowledge/config_schema.md § component_manifest.toml
+# Adding/removing components requires only changes to this file — no code changes.
+
+[[component]]
+id          = "fluid_simulator"
+label       = "Fluid Simulator"
+binary      = "fluid_sim"
+min_tier    = 0
+description = "SPH and CFD-based fluid simulation (Tier 0: SPH preview; Tier 1+: CFD)"
+enabled     = true
+
+[[component]]
+id          = "aerodynamic_simulator"
+label       = "Aerodynamic Simulator"
+binary      = "aero_sim"
+min_tier    = 0
+description = "Thin-aerofoil lift and drag model (C_L / C_D polar)"
+enabled     = true
+
+[[component]]
+id          = "thermodynamic_simulator"
+label       = "Thermodynamic Simulator"
+binary      = "thermo_sim"
+min_tier    = 0
+description = "Lumped-capacitance heat transfer with RK4 solver"
+enabled     = true
+
+[[component]]
+id          = "fem_structural"
+label       = "FEM Structural"
+binary      = "fem_sim"
+min_tier    = 0
+description = "Euler-Bernoulli beam FEM with Newmark-Beta dynamic solver"
+enabled     = true
+
+[[component]]
+id          = "motion_force_simulator"
+label       = "Motion & Forces"
+binary      = "motion_sim"
+min_tier    = 0
+description = "Gravity, spring-damper, hydraulic actuator, electric motor, joints"
+enabled     = true

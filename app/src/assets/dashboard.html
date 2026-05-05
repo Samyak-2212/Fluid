@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fluid — Debug Dashboard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0d0f14;
+      color: #c9d1e0;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 13px;
+      padding: 16px;
+    }
+    h1 { color: #7eb6ff; margin-bottom: 16px; font-size: 18px; }
+    h2 { color: #a8d8ff; margin: 12px 0 6px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .card {
+      background: #161b27;
+      border: 1px solid #2a3148;
+      border-radius: 6px;
+      padding: 12px;
+    }
+    .card.wide { grid-column: 1 / -1; }
+    .stat { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid #1e2535; }
+    .stat:last-child { border-bottom: none; }
+    .stat-key { color: #7b8ba0; }
+    .stat-val { color: #e2e8f2; font-weight: 600; }
+    pre {
+      background: #0a0c12;
+      border: 1px solid #1e2535;
+      border-radius: 4px;
+      padding: 8px;
+      overflow: auto;
+      max-height: 200px;
+      font-size: 11px;
+      color: #8fa3bf;
+      white-space: pre-wrap;
+    }
+    .tag-ok   { color: #4ade80; }
+    .tag-err  { color: #f87171; }
+    .tag-idle { color: #94a3b8; }
+    button {
+      background: #1e3a6e;
+      color: #7eb6ff;
+      border: 1px solid #2a4f9a;
+      border-radius: 4px;
+      padding: 4px 10px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 12px;
+      margin-right: 6px;
+      margin-top: 6px;
+    }
+    button:hover { background: #27499e; }
+    #status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #4ade80; margin-right: 6px; vertical-align: middle; }
+    #status-dot.err { background: #f87171; }
+    .refresh-note { color: #4a5568; font-size: 11px; margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <h1>⚡ Fluid Debug Dashboard <span id="status-dot"></span></h1>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Application State</h2>
+      <div id="state-list"><div class="stat"><span class="stat-key">Loading…</span></div></div>
+    </div>
+
+    <div class="card">
+      <h2>Protocol</h2>
+      <div id="health-list"><div class="stat"><span class="stat-key">Checking…</span></div></div>
+    </div>
+
+    <div class="card wide">
+      <h2>Widget Tree</h2>
+      <pre id="widget-tree">Loading…</pre>
+    </div>
+
+    <div class="card wide">
+      <h2>Recent Logs</h2>
+      <pre id="log-tail">Loading…</pre>
+      <p class="refresh-note">Auto-refreshes every 2 s</p>
+    </div>
+  </div>
+
+  <div style="margin-top:12px;">
+    <button onclick="refreshAll()">↺ Refresh</button>
+    <button onclick="takeScreenshot()">📷 Screenshot</button>
+  </div>
+
+  <script>
+    const BASE = '';   // same origin
+
+    async function fetchJSON(path) {
+      const r = await fetch(BASE + path);
+      return r.json();
+    }
+
+    function stat(key, val, cls) {
+      return `<div class="stat"><span class="stat-key">${key}</span><span class="stat-val ${cls||''}">${val}</span></div>`;
+    }
+
+    async function refreshHealth() {
+      try {
+        const h = await fetchJSON('/health');
+        const dot = document.getElementById('status-dot');
+        if (h.ok) { dot.classList.remove('err'); }
+        else       { dot.classList.add('err'); }
+        document.getElementById('health-list').innerHTML =
+          stat('protocol_version', h.protocol_version, 'tag-ok') +
+          stat('ok', h.ok, h.ok ? 'tag-ok' : 'tag-err');
+      } catch(e) {
+        document.getElementById('status-dot').classList.add('err');
+        document.getElementById('health-list').innerHTML = stat('error', e.message, 'tag-err');
+      }
+    }
+
+    async function refreshState() {
+      try {
+        const s = await fetchJSON('/state');
+        document.getElementById('state-list').innerHTML =
+          stat('frame', s.frame) +
+          stat('sim_time', s.sim_time.toFixed(3) + 's') +
+          stat('fps', s.fps.toFixed(1)) +
+          stat('sim_status', s.sim_status) +
+          stat('scene', s.scene_name) +
+          stat('entities', s.entity_count) +
+          stat('tier', 'Tier ' + s.tier) +
+          stat('headless', s.headless ? 'yes' : 'no');
+      } catch(e) {
+        document.getElementById('state-list').innerHTML = stat('error', e.message, 'tag-err');
+      }
+    }
+
+    async function refreshTree() {
+      try {
+        const t = await fetchJSON('/tree');
+        document.getElementById('widget-tree').textContent =
+          JSON.stringify(t.widgets, null, 2);
+      } catch(e) {
+        document.getElementById('widget-tree').textContent = 'Error: ' + e.message;
+      }
+    }
+
+    async function refreshLogs() {
+      try {
+        const l = await fetchJSON('/logs');
+        const lines = (l.lines || []).slice(-40);
+        document.getElementById('log-tail').textContent = lines.join('\n') || '(no logs)';
+      } catch(e) {
+        document.getElementById('log-tail').textContent = 'Error: ' + e.message;
+      }
+    }
+
+    async function takeScreenshot() {
+      try {
+        const r = await fetch(BASE + '/screenshot');
+        if (!r.ok) {
+          const j = await r.json();
+          alert('Screenshot failed: ' + (j.error || 'unknown'));
+          return;
+        }
+        const blob = await r.blob();
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+      } catch(e) {
+        alert('Screenshot error: ' + e.message);
+      }
+    }
+
+    function refreshAll() {
+      refreshHealth();
+      refreshState();
+      refreshTree();
+      refreshLogs();
+    }
+
+    refreshAll();
+    setInterval(refreshAll, 2000);
+  </script>
+</body>
+</html>

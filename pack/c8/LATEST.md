@@ -1,70 +1,50 @@
 # C8 Pack — LATEST
 
-Session: c8_session4_20260502T
+Session: c8_session6_20260502T
 Model: Claude Sonnet (Tier A)
-Status: COMPLETE — cargo check -p app EXIT:0
+Status: COMPLETE — cargo check -p app EXIT:0, 28 warnings, 0 errors
 
 ## Summary
 
-Implemented `iced::widget::shader` wgpu viewport integration for C8-Viewport.
+Session 6: Wired native file dialogs (rfd 0.15), functional File menu dropdown,
+in-process Tier 0 sim tick with placeholder orbit animation proving the
+sim→ECS→viewport→GPU pipeline, and DEC-015 SceneCommand wrappers for all
+scene mutations (RenameEntityCmd + MoveEntityCmd through CommandHistory).
 
 ## Files Created / Modified
 
 | File | Status | Notes |
 |------|--------|-------|
-| `app/src/viewport/camera.rs` | REWRITTEN | Orbit camera: spherical coords, view_proj(), orbit/pan/zoom |
-| `app/src/viewport/pipeline.rs` | NEW | [NEEDS_REVIEW: claude] wgpu LineList grid + PointList entity pipelines |
-| `app/src/viewport/mod.rs` | REWRITTEN | [NEEDS_REVIEW: claude] ViewportProgram (Program), ViewportPrimitive (Primitive), DragState |
-| `app/src/app.rs` | PATCHED | view_viewport_panel() → iced::widget::shader(program) |
-| `app/Cargo.toml` | PATCHED | added bytemuck = {version="1", features=["derive"]}; iced advanced feature |
-| `knowledge/project_manifest.md` | UPDATED | version 27; session 4 commit log; C8 status updated |
-| `knowledge/file_structure.md` | UPDATED | version 14; viewport files documented |
-| `pack/c8_session4_20260502T/context.md` | NEW | mid-session plan stub |
+| `app/Cargo.toml` | MODIFIED | Added rfd 0.15 (tokio feature) |
+| `app/src/app.rs` | MODIFIED | MenuTarget, OpenFileDialog/SaveFileDialog messages, menu_open + current_path + sim_state fields, full wiring, view_menu_bar dropdown, timeline buttons, apply_sim_orbit() |
+| `app/src/scene/command.rs` | MODIFIED | RenameEntityCmd + MoveEntityCmd DEC-015 wrappers |
+| `app/src/sim_bridge/mod.rs` | REWRITTEN | SimState (running/tick/dt/orbit), SimBridge stub kept |
+| `pack/c8_session6_20260502T/context.md` | NEW | Session 6 pack |
 
-## Key Technical Decisions
+## Key Technical Decisions (Session 6)
 
-- `iced::widget::shader::wgpu` is wgpu **0.19.4** (not 29.0.1) — the iced re-export uses an older API
-  - `entry_point: &str` (not `Option<&str>`)
-  - No `compilation_options` field on VertexState/FragmentState
-  - No `cache` field on RenderPipelineDescriptor
-  - `Operations { load, store: StoreOp }` — StoreOp is an enum
-  - `wgpu::util` is NOT re-exported — use `mapped_at_creation: true` for buffer upload
-- `iced::advanced` feature must be enabled to access `Shell` for `Program::update()`
-- `Status` is from `iced::widget::canvas::event::Status` (not `iced::event::Status`)
-- Camera state lives in `ViewportInteractState` (Program's associated State) — managed by iced runtime
-- Grid: 21×21 lines on XZ plane, LineList topology, axis lines appended (red X, blue Z)
-- Placeholder entity markers: PointList at origin, one per entity (session 5 will use ECS positions)
-
-## API Confirmed
-
-```rust
-Program<Message> {
-    type State: Default + 'static;       // ViewportInteractState
-    type Primitive: Primitive + 'static; // ViewportPrimitive
-    fn draw(&self, state, cursor, bounds) -> Primitive;
-    fn update(&self, state, event, bounds, cursor, shell) -> (Status, Option<Message>);
-    fn mouse_interaction(&self, state, bounds, cursor) -> Interaction;
-}
-
-Primitive {
-    fn prepare(&self, device, queue, format, storage, bounds, viewport);
-    fn render(&self, encoder, storage, target: &TextureView, clip_bounds: &Rectangle<u32>);
-}
-```
+- `rfd 0.15` with `tokio` feature — NOT `async-std` (matches iced's tokio runtime; no second runtime)
+- `Task::future(async { rfd... })` for non-blocking dialog spawn
+- `Task::done(AppMessage::SaveFile(path))` for "Save" shortcut when path already known
+- `MenuTarget` enum + `menu_open: Option<MenuTarget>` — no third-party menu crate
+- File menu dropdown is a plain `container(column![button...])` rendered below the bar
+- DEC-015: RenameEntity/MoveEntity read old value from scene before constructing cmd
 
 ## Status at Retirement
 
-- `cargo check -p app`: **EXIT:0**, warnings only (35 pre-existing dead_code, none from viewport)
-- No open bugs affecting C8-Viewport
-- [NEEDS_REVIEW: claude] tags applied to both pipeline.rs and mod.rs as required
+- `cargo check -p app`: **EXIT:0**, 28 warnings (all pre-existing dead_code)
+- All 4 session 6 work items complete
+- [NEEDS_REVIEW: claude] tags preserved on viewport/pipeline.rs and viewport/mod.rs
 
-## Next Session Priorities (C8-FileFormat or C8-UI polish)
+## Next Session Priorities (C8 Session 7)
 
-1. C8-FileFormat: `.fluid` envelope save/load (app/src/file/)
-2. C8-UI: panel resize handles, outliner tree, properties grid
-3. Session 5 viewport: wire ECS entity positions from `Scene::world()` into point buffer
+1. C8-Import: glTF/OBJ import into Scene via spawn_object + set_position
+2. C8-UI: Edit menu dropdown with Undo/Redo items + keyboard bindings
+3. C8-Assets: Preset TOML loader (water/air/steel defaults in app/assets/presets/)
+4. C8-SimBridge: Autosave on dirty flag at configurable interval
+5. C8-UI: Status bar sim state indicator (running/paused/tick rate)
 
 ## Soft Retirement
 
 No gate signal published this session. Commit protocol does NOT apply.
-Next session: read this file + coordinators/app/PROMPT.md + pack/c8/LATEST.md.
+Next session: read this file + coordinators/app/PROMPT.md.

@@ -73,6 +73,11 @@ fbxcel-dom = { version = "0.0.10", optional = true }
 # [UNVERIFIED: xcap cross-platform headless behavior — see research_dump/_INDEX.md]
 xcap = { version = "0.0", optional = true }
 
+# Native file dialogs — cross-platform (Win32 / GTK / Cocoa) async dialog
+# Using tokio feature to match iced's tokio runtime (DEC-001 / session 6)
+# Latest 0.15.x: 0.15.4 (verified crates.io 2026-05-02)
+rfd = { version = "0.15", features = ["tokio"] }
+
 # Logging
 log = { version = "0.4" }
 env_logger = { version = "0.11" }

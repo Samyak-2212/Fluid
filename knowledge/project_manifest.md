@@ -1,13 +1,13 @@
-<!-- version: 27 -->
+<!-- version: 30 -->
 # Project Manifest
 
 ## Project: Fluid
 Language: Rust (edition 2021+)
 Root session: root_coordinator_20260427T032847Z
-Status last updated: 2026-05-02T09:57:42+05:30
+Status last updated: 2026-05-04T16:54:50+05:30
 C3 Last clean checkpoint SHA: d00186b1b1619c22a85f1ed347ca650a055dd019
 C4 Last clean checkpoint SHA: a4018a7aa5dd7d52baa3c0b77b8d9d1e11a6a276
-C5 Last clean checkpoint SHA: d710739d168dd34844b8aa09529f8db98f7b9a59
+C9 Last clean checkpoint SHA: 2f1e7450335ece2ff2fc478e6428580204637128
 qa_allowlist_fix Last clean checkpoint SHA: b6726b7
 conformity_fix Last clean checkpoint SHA: 1ac87610436878ab6091e62f4354f4e7596e2494
 maintenance_20260502 Last clean checkpoint SHA: d20017f
@@ -27,7 +27,7 @@ c8_session4_20260502T Last clean checkpoint SHA: 7d6e6b0
 | C6 — Debugger | `debugger/` | **COMPLETE** | `[C6_COMPLETE]` ✅ | HTTP debugger API + UI implemented |
 | C7 — Quality Gate | (cross-cutting) | **COMPLETE** | `[C7_COMPLETE]` ✅ | All NEEDS_REVIEW queue cleared; architecture conformance passed; retirement audit complete |
 | Root | (this file) | COMPLETE | `[ROOT_COMPLETE]` ✅ | All seven coordinator gates confirmed. BUG-018/019 found and closed on first user build. |
-| C8 — GUI Application | `app/` | IN_PROGRESS | `[C8_INTERFACES_PUBLISHED]` ✅ `[C8_COMPLETE]` ⏳ | Session 4: wgpu viewport DONE (ViewportProgram+Primitive, grid floor, orbit/pan/zoom); cargo check EXIT:0. C8-FileFormat next. |
+| C8 — GUI Application | `app/` | IN_PROGRESS | `[C8_INTERFACES_PUBLISHED]` ✅ `[C8_COMPLETE]` ⏳ | Session 6: rfd file dialogs, File menu dropdown, Tier 0 sim tick (orbit animation), DEC-015 SceneCommand wrappers. cargo check EXIT:0, 28 warnings. |
 | C9 — Agent Debugger | `agent_debugger/` | **COMPLETE** | `[C9_COMPLETE]` ✅ | Session 1+2: full impl + integration tests pass (Windows headless). cargo check --workspace EXIT:0. |
 
 ---
@@ -138,7 +138,8 @@ C5 (Sim Components) may now begin.
 <!-- Format: [IN_PROGRESS: <agent_id> at <timestamp> on <task>] -->
 <!-- Remove when session retires. C7 audits for stale entries. -->
 
-[IN_PROGRESS: c8_session4_20260502T at 2026-05-02T05:03:00Z on app/src/viewport wgpu shader integration]
+[IN_PROGRESS: c8_session5_20260502T at 2026-05-02T05:36:48Z on app — ECS positions, TOML file I/O, outliner, properties] RETIRED
+[IN_PROGRESS: c8_session6_20260502T at 2026-05-02T12:00:00Z on app — rfd dialogs, menu, sim tick, DEC-015 commands] RETIRED
 
 ---
 
@@ -161,6 +162,9 @@ C5 (Sim Components) may now begin.
 [RETIRED: c2_reactivation_bug004_20260502T004358Z at 2026-05-02T00:43:58+05:30]
 [RETIRED: c9_session1_20260502T101833Z at 2026-05-02T10:18:33+05:30]
 [RETIRED: c9_session2_20260502T104231Z at 2026-05-02T10:42:31+05:30]
+[RETIRED: c8_session4_20260502T at 2026-05-02T05:03:00Z]
+[RETIRED: c8_session5_20260502T at 2026-05-02T05:36:48Z]
+[RETIRED: c8_session6_20260502T at 2026-05-04T11:30:00Z]
 
 ---
 
@@ -194,6 +198,8 @@ C5 (Sim Components) may now begin.
 2026-05-02T10:18:33+05:30 c9_session1_20260502T101833Z 11 ~900 C9 session 1: DECISIONS.md (10 decisions), Cargo.toml (xcap+ureq+enigo+clap), error.rs, config.rs, health.rs, state.rs, control.rs, screenshot.rs, report.rs, cleanup.rs, input.rs [NEEDS_REVIEW: claude], main.rs (8 subcommands), config/agent_debugger.toml; knowledge/file_structure.md v13; cargo check -p agent_debugger: 0 errors, 0 warnings, EXIT:0.
 2026-05-02T10:42:31+05:30 c9_session2_20260502T104231Z 1 ~30 C9 session 2: integration tests (Windows headless). health/state/tree/screenshot/run/cleanup all pass. cargo check --workspace EXIT:0. [C9_COMPLETE] written.
 2026-05-02T05:03:00Z c8_session4_20260502T 5 ~600 C8-Viewport session 4: app/src/viewport/camera.rs (orbit/pan/zoom spherical Camera), app/src/viewport/pipeline.rs [NEEDS_REVIEW: claude] (wgpu LineList grid + PointList entity pipeline, mapped_at_creation upload), app/src/viewport/mod.rs [NEEDS_REVIEW: claude] (ViewportProgram+ViewportPrimitive Program/Primitive traits, orbit/pan LMB/RMB drag, scroll zoom), app/src/app.rs (view_viewport_panel → iced::widget::shader), app/Cargo.toml (bytemuck+advanced feature). cargo check -p app: EXIT:0, warnings only.
+2026-05-02T05:36:48Z c8_session5_20260502T 4 ~350 C8 session 5: scene/mod.rs (Position component, get/set_position, entity_positions, mark_dirty), viewport/mod.rs (real ECS coords in prepare()), file/mod.rs (FluidEnvelope+EntitySnapshot TOML save/load, 2 unit tests), app.rs (SelectEntity/RenameEntity/MoveEntity/SaveFile/OpenFile messages, selected_entity+prop buffers, outliner button rows with selection highlight, properties panel name+XYZ inputs). cargo check -p app: EXIT:0, 29 warnings.
+2026-05-04T11:30:00Z c8_session6_20260502T 4 ~400 C8 session 6: Cargo.toml (rfd 0.15 tokio feature), scene/command.rs (RenameEntityCmd + MoveEntityCmd DEC-015 wrappers), sim_bridge/mod.rs (SimState with orbit tick), app.rs (MenuTarget enum, menu_open+current_path+sim_state fields, OpenFileDialog/SaveFileDialog/MenuOpen/MenuClose messages, File dropdown overlay, SimToggle/SimStep/SimReset wired, apply_sim_orbit(), timeline ▶/⏸/⏭/⏹ buttons, DEC-015 command routing). cargo check -p app: EXIT:0, 28 warnings.
 ---
 
 ## Notes

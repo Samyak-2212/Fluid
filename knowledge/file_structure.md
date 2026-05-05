@@ -1,8 +1,8 @@
-<!-- version: 14 -->
+<!-- version: 15 -->
 # File Structure
 
-Last updated by: c8_session4_20260502T (C8 session 4 — wgpu viewport integration)
-Reflects: app/src/viewport/ fully implemented (camera.rs, pipeline.rs, mod.rs); app/Cargo.toml updated (bytemuck, advanced). Merged onto version: 13.
+Last updated by: c8_session5_20260502T (C8 session 5 — ECS positions, TOML file I/O, outliner, properties)
+Reflects: app/src/scene/mod.rs (Position component), app/src/file/mod.rs (TOML save/load), app/src/app.rs (SelectEntity etc.), app/src/viewport/mod.rs (entity_positions). Merged onto version: 14.
 
 ## Root
 
@@ -31,8 +31,8 @@ All files in `knowledge/` are Tier A authored and maintained. Files carry a `<!-
 | `knowledge/dependency_graph.md` | file | Root | active | version: 2 |
 | `knowledge/model_tier_policy.md` | file | Root | active | version: 1 |
 | `knowledge/config_schema.md` | file | Root | active | version: 4 |
-| `knowledge/file_structure.md` | file | Root/C2/C5/C8 | active | This file version: 11 |
-| `knowledge/project_manifest.md` | file | Root | active | version: 24, C8 in-progress |
+| `knowledge/file_structure.md` | file | Root/C2/C5/C8 | active | This file version: 15 |
+| `knowledge/project_manifest.md` | file | Root | active | version: 29, C8 session 5 complete |
 
 ## bug_pool/
 
@@ -67,11 +67,14 @@ All `PROMPT.md` files are Tier A only. Documentation work reads them for crate i
 | `rendering/` | dir | C3 | **complete** | wgpu init, Tier 0 CPU rasterizer, scene renderer, HTTP preview; 12 tests pass |
 | `builder/` | dir | C2 | complete | Native build UI |
 | `debugger/` | dir | C6 | **complete** | Localhost debugger surface (port 8081) |
-| `app/` | dir | C8 | **in-progress** | Fluid GUI app — Session 4: ViewportProgram+Primitive wgpu shader implemented; orbit/pan/zoom camera; grid floor pipeline; cargo check EXIT:0. |
+| `app/` | dir | C8 | **in-progress** | Fluid GUI app — Session 5: ECS positions wired, TOML file I/O, outliner buttons, properties panel; cargo check EXIT:0. |
+| `app/src/scene/mod.rs` | file | C8 | **active** | Position component, get/set_position, entity_positions, mark_dirty |
+| `app/src/file/mod.rs` | file | C8 | **active** | FluidEnvelope + EntitySnapshot TOML save/load (2 unit tests) |
+| `app/src/app.rs` | file | C8 | **active** | SelectEntity/RenameEntity/MoveEntity/SaveFile/OpenFile; outliner buttons; properties panel |
 | `app/src/viewport/camera.rs` | file | C8 | **active** | Orbit camera: spherical coords, view_proj(), orbit/pan/zoom methods |
-| `app/src/viewport/pipeline.rs` | file | C8 | **active** | [NEEDS_REVIEW: claude] ViewportPipelineState: wgpu LineList grid + PointList entity pipelines, mapped_at_creation upload |
-| `app/src/viewport/mod.rs` | file | C8 | **active** | [NEEDS_REVIEW: claude] ViewportProgram (Program trait), ViewportPrimitive (Primitive trait), DragState, ViewportInteractState |
-| `agent_debugger/` | dir | C9 | **in-progress** | Agent test harness — screenshot, widget control, protocol conformance |
+| `app/src/viewport/pipeline.rs` | file | C8 | **active** | [NEEDS_REVIEW: claude] ViewportPipelineState: wgpu LineList grid + PointList entity pipelines |
+| `app/src/viewport/mod.rs` | file | C8 | **active** | [NEEDS_REVIEW: claude] ViewportProgram+ViewportPrimitive with real ECS entity_positions |
+| `agent_debugger/` | dir | C9 | **complete** | Agent test harness — 8 subcommands, integration tests pass (Windows headless) |
 | `components/fluid_simulator/` | dir | C5 | **implemented** | SPH (Wendland C2 + XSPH + Leap-Frog) + CFD (Chorin projection) + GPU FFI trait |
 | `components/aerodynamic_simulator/` | dir | C5 | **implemented** | Thin-aerofoil lift/drag model (C_L, C_D polar) |
 | `components/motion_force_simulator/` | dir | C5 | **implemented** | Gravity, spring-damper, hydraulic actuator, electric motor, joints |
@@ -139,7 +142,9 @@ All `PROMPT.md` files are Tier A only. Documentation work reads them for crate i
 | `pack/c5_scaffold_20260429T213456Z/` | dir | C5 | active | C5 scaffold session context |
 | `pack/c5_impl_20260429T214423Z/` | dir | C5 | active | C5 implementation checkpoint (soft retire) |
 | `pack/c5_complete_20260430T064800Z/` | dir | C5 | active | C5 gate-verified completion pack |
-| `pack/c8/` | dir | C8 | planned | C8 session pack dir (LATEST.md + MANIFEST.md) |
+| `pack/c8/` | dir | C8 | **active** | C8 session pack dir (LATEST.md updated session 5) |
+| `pack/c8_session4_20260502T/` | dir | C8 | active | C8 session 4 pack |
+| `pack/c8_session5_20260502T/` | dir | C8 | active | C8 session 5 pack (context.md) |
 | `pack/c9/` | dir | C9 | **active** | C9 session pack dir (LATEST.md + MANIFEST.md) |
 
 ## knowledge_b/
