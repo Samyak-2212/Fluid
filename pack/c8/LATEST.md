@@ -1,48 +1,58 @@
 # C8 Pack — LATEST
 
-Session: c8_session6_20260502T
+Session: c8_session7_20260505T
 Model: Claude Sonnet (Tier A)
 Status: COMPLETE — cargo check -p app EXIT:0, 28 warnings, 0 errors
 
 ## Summary
 
-Session 6: Wired native file dialogs (rfd 0.15), functional File menu dropdown,
-in-process Tier 0 sim tick with placeholder orbit animation proving the
-sim→ECS→viewport→GPU pipeline, and DEC-015 SceneCommand wrappers for all
-scene mutations (RenameEntityCmd + MoveEntityCmd through CommandHistory).
+Session 7: Edit menu dropdown with dynamic Undo/Redo labels (greyed when unavailable),
+keyboard shortcuts (Ctrl+Z/Y/Shift+Z/N/O/S), glTF/GLB import wired into Scene via
+SpawnEntityCmd, material preset TOML loader (water/air/steel), Simulation menu preset
+items, "+" spawn button in Scene Outliner header, SpawnEntityCmd/DespawnEntityCmd added
+to command.rs.
 
 ## Files Created / Modified
 
 | File | Status | Notes |
 |------|--------|-------|
-| `app/Cargo.toml` | MODIFIED | Added rfd 0.15 (tokio feature) |
-| `app/src/app.rs` | MODIFIED | MenuTarget, OpenFileDialog/SaveFileDialog messages, menu_open + current_path + sim_state fields, full wiring, view_menu_bar dropdown, timeline buttons, apply_sim_orbit() |
-| `app/src/scene/command.rs` | MODIFIED | RenameEntityCmd + MoveEntityCmd DEC-015 wrappers |
-| `app/src/sim_bridge/mod.rs` | REWRITTEN | SimState (running/tick/dt/orbit), SimBridge stub kept |
-| `pack/c8_session6_20260502T/context.md` | NEW | Session 6 pack |
+| `app/src/app.rs` | MODIFIED | Edit menu (dynamic Undo/Redo), keyboard subscription, ImportFileDialog/ImportFile/LoadPreset/SpawnEntity, Simulation presets menu, "+" outliner button, PresetDb field |
+| `app/src/import/mod.rs` | REWRITTEN | glTF/GLB via gltf crate; ImportedMesh struct; OBJ/STL/FBX stubs |
+| `app/src/scene/command.rs` | MODIFIED | SpawnEntityCmd + DespawnEntityCmd (DEC-015) |
+| `app/src/assets/mod.rs` | NEW | MaterialPreset + PresetDb::load() reads *.toml from app/assets/presets/ |
+| `app/assets/presets/water.toml` | NEW | Water preset |
+| `app/assets/presets/air.toml` | NEW | Air preset |
+| `app/assets/presets/steel.toml` | NEW | Steel preset |
+| `app/src/main.rs` | MODIFIED | Added `mod assets;` |
+| `knowledge/file_structure.md` | MODIFIED | version 16; new files documented |
+| `pack/c8_session7_20260505T/context.md` | NEW | Session 7 pack |
 
-## Key Technical Decisions (Session 6)
+## Key Technical Decisions (Session 7)
 
-- `rfd 0.15` with `tokio` feature — NOT `async-std` (matches iced's tokio runtime; no second runtime)
-- `Task::future(async { rfd... })` for non-blocking dialog spawn
-- `Task::done(AppMessage::SaveFile(path))` for "Save" shortcut when path already known
-- `MenuTarget` enum + `menu_open: Option<MenuTarget>` — no third-party menu crate
-- File menu dropdown is a plain `container(column![button...])` rendered below the bar
-- DEC-015: RenameEntity/MoveEntity read old value from scene before constructing cmd
+- `dd_style()` free function for dropdown container styles (closure caused `'1 must outlive '2` lifetime error).
+- `Box::leak()` for dynamic Undo/Redo menu labels (static str requirement; no steady-state leak).
+- `Subscription::batch([tick, keys])` — keyboard + debug tick merged.
+- `modifiers.command()` — cross-platform (Ctrl on Win/Linux, Cmd on macOS).
+- `SpawnEntityCmd` stores `spawned: Option<EntityId>` set at execute-time for exact undo.
+- `PresetDb` uses `CARGO_MANIFEST_DIR` in dev; falls back to `<exe_dir>/assets/presets/`.
 
 ## Status at Retirement
 
 - `cargo check -p app`: **EXIT:0**, 28 warnings (all pre-existing dead_code)
-- All 4 session 6 work items complete
-- [NEEDS_REVIEW: claude] tags preserved on viewport/pipeline.rs and viewport/mod.rs
+- Session 7 priorities 1–4: **all DONE**
 
-## Next Session Priorities (C8 Session 7)
+## Known Remaining Dead Code (28 warnings — intentional scaffolding)
 
-1. C8-Import: glTF/OBJ import into Scene via spawn_object + set_position
-2. C8-UI: Edit menu dropdown with Undo/Redo items + keyboard bindings
-3. C8-Assets: Preset TOML loader (water/air/steel defaults in app/assets/presets/)
-4. C8-SimBridge: Autosave on dirty flag at configurable interval
-5. C8-UI: Status bar sim state indicator (running/paused/tick rate)
+Identical set to session 6 plus new intentional additions:
+`SpawnEntityCmd::entity()`, `DespawnEntityCmd` (scaffolded for Delete key), `MaterialPreset::viscosity`
+
+## Next Session Priorities (C8 Session 8)
+
+1. C8-SimBridge: Wire `LoadPreset` to sim parameter propagation (viscosity/density → World components)
+2. C8-UI: Status bar sim state indicator (running/paused/tick rate)
+3. C8-FileFormat: Autosave on dirty flag at configurable interval
+4. C8-UI: Delete entity key — wire DespawnEntityCmd to Delete key / context menu
+5. C8-Import: OBJ import via tobj crate
 
 ## Soft Retirement
 

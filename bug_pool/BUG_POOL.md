@@ -187,6 +187,16 @@ Closed entries are never deleted — they stay in `## Closed` permanently.
 
 ## Process Violations
 
+### BUG-020
+- Severity: process
+- Component: app/src/file/mod.rs (C8-FileFormat)
+- Reported by: antigravity-session-bdce5976
+- Description: C8 session 4's handoff_prompt.md (line 83) cited DEC-003 as specifying "TOML envelope" for the `.fluid` file format; DEC-003 governs import crates (gltf/tobj/stl_io/fbxcel-dom), not the file format. The correct decisions are DEC-004 (MessagePack envelope) and DEC-011 (map-based struct serialization) — both LOCKED. Session 5 implemented TOML as commanded, acknowledged the conflict in the code docstring, and designed the struct to be codec-agnostic.
+- Reproduction: Read `pack/c8_session4_20260502T/handoff_prompt.md` lines 82–90; compare with `app/DECISIONS.md` DEC-004/DEC-011.
+- Assigned to: antigravity-session-bdce5976
+- Status: CLOSED
+- Resolution: User approved Option A (keep LOCKED decisions). Reverted `app/src/file/mod.rs` codec from `toml::to_string_pretty`/`toml::from_str` to `rmp_serde::to_vec_named`/`rmp_serde::from_slice`. `FluidEnvelope` and `EntitySnapshot` structs unchanged — only the serializer swapped. Added third unit test (`map_based_encoding_contains_field_names`) to assert DEC-011 compliance directly. `rmp-serde` was already in `app/Cargo.toml`. Session 4's handoff_prompt.md is left as-is (historical artifact — do not edit). Future session handoffs must not cite DEC numbers without cross-referencing `app/DECISIONS.md`.
+
 ### BUG-013
 - Severity: process
 - Component: coordinators/quality_gate/PROMPT.md

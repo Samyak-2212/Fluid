@@ -35,3 +35,9 @@ desktop.ini
 # Environment files with secrets
 .env
 .env.local
+
+# App pre-compiled tier binaries (large blobs, cross-platform)
+app/bin/**
+
+# Agent debugger session screenshots
+agent_debugger/sessions/**/*.png

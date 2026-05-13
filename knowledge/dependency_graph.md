@@ -1,4 +1,4 @@
-<!-- version: 1 -->
+<!-- version: 2 -->
 # Dependency Graph
 
 ## Coordinator Dependencies
@@ -10,12 +10,16 @@ C4 (Physics Core) [interfaces published] ───────► C5 begins
 C4 (Physics Core) [fully implemented] ──────────► C5 full implementation
 C3 + C4 ────────────────────────────────────────► C7 review begins
 C1 + C2 ────────────────────────────────────────► C6 begins
+C1–C7 [all gates published] ────────────────────► C8 begins
+C8 [interfaces published] ──────────────────────► C9 begins
 
 Parallel from day 0:    C1 and C2
 First unblock event:    C1 publishes core trait interfaces → C4 begins
                         Signal: [C1_INTERFACES_PUBLISHED] in knowledge/project_manifest.md
 Second unblock event:   C4 publishes physics traits → C5 begins
                         Signal: [C4_INTERFACES_PUBLISHED] in knowledge/project_manifest.md
+Third unblock event:    C8 publishes debug interface → C9 begins
+                        Signal: [C8_INTERFACES_PUBLISHED] in knowledge/project_manifest.md
 ```
 
 ## Completion Gate Signals
@@ -24,9 +28,10 @@ All signals are written to `knowledge/project_manifest.md`.
 Writing a signal is a hard retirement trigger — see AGENTS.md and sustainability rule 11.
 
 | Signal | Written by | Meaning |
-|--------|-----------|---------|
+|--------|-----------|---------| 
 | `[C1_INTERFACES_PUBLISHED]` | C1 | Core traits exist — C4 may begin |
 | `[C4_INTERFACES_PUBLISHED]` | C4 | Physics traits exist — C5 may begin |
+| `[C8_INTERFACES_PUBLISHED]` | C8 | App skeleton + debug interface published — C9 may begin |
 | `[C1_COMPLETE]` | C1 | All C1 work done — session retires |
 | `[C2_COMPLETE]` | C2 | All C2 work done — session retires |
 | `[C3_COMPLETE]` | C3 | All C3 work done — session retires |
@@ -34,6 +39,8 @@ Writing a signal is a hard retirement trigger — see AGENTS.md and sustainabili
 | `[C5_COMPLETE]` | C5 | All C5 work done — session retires |
 | `[C6_COMPLETE]` | C6 | All C6 work done — session retires |
 | `[C7_COMPLETE]` | C7 | All C7 work done — session retires |
+| `[C8_COMPLETE]` | C8 | All C8 work done — session retires |
+| `[C9_COMPLETE]` | C9 | All C9 work done — session retires |
 | `[ROOT_COMPLETE]` | Root | Root coordinator work done — session retires |
 
 ## C1 Completion Gate (Interfaces Published)
@@ -54,6 +61,16 @@ C4 is considered "interfaces published" when ALL of the following files exist an
 - `physics_core/src/constraints/traits.rs`
 - An entry `[C4_INTERFACES_PUBLISHED]` in `knowledge/project_manifest.md`
 
+## C8 Interface Publication Gate
+
+C8 is considered "interfaces published" when ALL of the following conditions hold:
+
+- `app/src/debug_server/mod.rs` — debug HTTP server running at 127.0.0.1:8082
+- `app/debug_interface_spec.md` — published debug contract (all endpoints documented)
+- `coordinators/app/*/PROMPT.md` files — sub-coordinator specs authored (C8-UI, C8-Viewport, C8-FileFormat, C8-Import, C8-SimBridge, C8-Assets)
+- `app/src/` skeleton compiles (`cargo check -p app` EXIT:0)
+- An entry `[C8_INTERFACES_PUBLISHED]` in `knowledge/project_manifest.md`
+
 ## Build Order Summary
 
 ```
@@ -61,6 +78,10 @@ Wave 0 (parallel):   C1, C2
 Wave 1 (after C1):   C3, C4, C6
 Wave 2 (after C4):   C5
 Wave 3 (after C3+C4+C5): C7 full review
+Wave 4 (after C1-C7 all gates): C8 (GUI app)
+Wave 5 (after C8 interfaces): C9 (Agent Debugger)
 ```
 
 C7 setup begins with C1+C2. C7 review work begins only after C3/C4/C5 interfaces are published.
+C8 begins after all C1–C7 gates are confirmed. C9 begins after [C8_INTERFACES_PUBLISHED].
+

@@ -1,4 +1,4 @@
-<!-- version: 3 -->
+<!-- version: 4 -->
 # Config Schema
 
 All tunables live in `config/`. Format: TOML.
@@ -98,6 +98,8 @@ Document the new flag's schema here immediately after it is added.
 | `config/thermodynamic_simulator.toml` | C5 | Scaffolded by C5 |
 | `config/fem_structural.toml` | C5 | Scaffolded by C5 |
 | `config/motion_force_simulator.toml` | C5 | Scaffolded by C5 |
+| `config/app.toml` | C8 | Created by C8 at session 1 |
+| `config/component_manifest.toml` | C8 | Created by C8 at session 1 |
 
 ## physics_core.toml — Key Schema
 
@@ -159,3 +161,42 @@ File: `config/motion_force_simulator.toml`
 | `gravity_vector` | array | `[0.0, -9.81, 0.0]` | Global gravity vector (m/s^2) |
 | `default_actuator_max_force` | float | `1000.0` | Default max force for generic actuators in Newtons |
 | `default_joint_spring_constant` | float | `5000.0` | Default spring constant for joint constraints in N/m |
+
+## app.toml — Key Schema
+
+File: `config/app.toml`
+Server/deploy settings only. User preferences go to OS config dir (DEC-016).
+All values are loaded at runtime. Typed defaults in code — no runtime panics on missing keys.
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `debug_server_port` | integer | `8082` | Port for the C8 debug HTTP server (loopback only). |
+| `debug_server_token` | string | `""` | Optional shared secret for debug endpoint auth. Empty = no auth. |
+| `log_level` | string | `"INFO"` | Log level: `"ERROR"`, `"WARN"`, `"INFO"`, `"DEBUG"`, `"TRACE"`. |
+
+## component_manifest.toml — Key Schema
+
+File: `config/component_manifest.toml`
+Component plugin registry. C8 reads this at startup to enumerate available sim components.
+All values are loaded at runtime — no panics on malformed or missing entries.
+
+```toml
+[[component]]
+id           = "fluid_simulator"          # matches crate name and feature flag
+label        = "Fluid Simulator"          # human-readable label for UI
+binary       = "fluid_sim"               # subprocess binary name (in app/bin/<tier>/)
+min_tier     = 0                          # minimum capability tier required
+description  = "SPH and CFD fluid sim"   # tooltip / help text
+enabled      = true                       # can be disabled without removing entry
+```
+
+### component entry fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `id` | string | yes | Matches crate name and builder feature flag exactly. snake_case. |
+| `label` | string | yes | Display name shown in UI component picker. |
+| `binary` | string | yes | Subprocess binary filename (without extension). Located in `app/bin/<tier>/`. |
+| `min_tier` | integer | yes | Minimum capability tier (0–3). App skips components if detected tier < min_tier. |
+| `description` | string | yes | Tooltip text shown in UI on hover. |
+| `enabled` | bool | yes | If false, component is hidden from UI and not launched as subprocess. |

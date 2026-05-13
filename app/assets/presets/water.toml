@@ -1,0 +1,14 @@
+# Fluid material preset — Water (liquid, room temperature)
+# Loaded by C8-Assets preset loader (app/src/assets/mod.rs).
+# Applied to the selected entity via AppMessage::LoadPreset("water").
+
+name        = "Water"
+material    = "liquid"
+# Dynamic viscosity in Pa·s (SI)
+viscosity   = 0.001
+# Density in kg/m³
+density     = 1000.0
+# Surface tension coefficient in N/m
+surface_tension = 0.072
+# Bulk modulus in Pa (used by weakly-compressible SPH variant)
+bulk_modulus = 2.2e9

@@ -290,6 +290,83 @@ impl SceneCommand for MoveEntityCmd {
     }
 }
 
+/// Spawns a new entity with the given display name. Stores the returned
+/// `EntityId` so that `undo` can despawn exactly the same entity.
+///
+/// **DEC-015**: Use this command (not direct `scene.spawn_object`) from the
+/// Iced `update` handler to keep spawn/despawn undoable.
+#[derive(Debug)]
+pub struct SpawnEntityCmd {
+    name: String,
+    /// Filled in by `execute`; `None` before first execution.
+    spawned: Option<EntityId>,
+}
+
+impl SpawnEntityCmd {
+    pub fn new(name: impl Into<String>) -> Box<Self> {
+        Box::new(Self { name: name.into(), spawned: None })
+    }
+
+    /// Returns the spawned `EntityId` after `execute` has been called.
+    pub fn entity(&self) -> Option<EntityId> { self.spawned }
+}
+
+impl SceneCommand for SpawnEntityCmd {
+    fn label(&self) -> &str { "Spawn Entity" }
+
+    fn execute(&mut self, scene: &mut crate::scene::Scene) -> Result<(), SceneCommandError> {
+        let e = scene.spawn_object(self.name.clone());
+        self.spawned = Some(e);
+        Ok(())
+    }
+
+    fn undo(&mut self, scene: &mut crate::scene::Scene) -> Result<(), SceneCommandError> {
+        if let Some(e) = self.spawned {
+            scene.despawn_object(e);
+            Ok(())
+        } else {
+            Err(SceneCommandError::UndoError(
+                "SpawnEntityCmd: execute was never called".to_string(),
+            ))
+        }
+    }
+}
+
+/// Despawns an existing entity. Stores its name and position so `undo` can
+/// re-spawn it at the same location.
+#[derive(Debug)]
+pub struct DespawnEntityCmd {
+    entity: EntityId,
+    /// Filled in by `execute` after reading metadata from the scene.
+    saved_name: String,
+    saved_pos: [f32; 3],
+}
+
+impl DespawnEntityCmd {
+    /// Construct from the entity id and its current name/position (read by the
+    /// caller before constructing this command, per DEC-015 pattern).
+    pub fn new(entity: EntityId, name: String, position: [f32; 3]) -> Box<Self> {
+        Box::new(Self { entity, saved_name: name, saved_pos: position })
+    }
+}
+
+impl SceneCommand for DespawnEntityCmd {
+    fn label(&self) -> &str { "Delete Entity" }
+
+    fn execute(&mut self, scene: &mut crate::scene::Scene) -> Result<(), SceneCommandError> {
+        scene.despawn_object(self.entity);
+        Ok(())
+    }
+
+    fn undo(&mut self, scene: &mut crate::scene::Scene) -> Result<(), SceneCommandError> {
+        // Re-spawn at the same name; we cannot guarantee the same EntityId, so
+        // the selection state will be stale — acceptable for session 7.
+        let e = scene.spawn_object(self.saved_name.clone());
+        scene.set_position(e, self.saved_pos);
+        Ok(())
+    }
+}
+
 // ── Tests ────────────────────────────────────────────────────────────────────
 
 #[cfg(test)]

@@ -21,6 +21,7 @@ use std::sync::{Arc, RwLock};
 
 use iced::{
     Element, Subscription, Task, Theme,
+    keyboard,
     widget::{
         button, column, container, horizontal_space, pane_grid,
         row, scrollable, text, text_input, Space,
@@ -30,6 +31,7 @@ use iced::{
 };
 
 use crate::sim_bridge::SimState;
+use crate::assets::PresetDb;
 
 use fluid_core::ecs::traits::EntityId;
 
@@ -96,6 +98,18 @@ pub enum AppMessage {
     SaveFile(PathBuf),
     /// Load scene from path (result of OpenFileDialog).
     OpenFile(PathBuf),
+    /// Open a native dialog to import glTF/OBJ geometry.
+    ImportFileDialog,
+    /// Import geometry from the resolved path (result of ImportFileDialog).
+    ImportFile(PathBuf),
+
+    // ── Presets ────────────────────────────────────────────────────────────
+    /// Apply a named material preset to the selected entity.
+    LoadPreset(String),
+
+    // ── Scene outliner ─────────────────────────────────────────────────────
+    /// Spawn a new default entity via SpawnEntityCmd (DEC-015).
+    SpawnEntity,
 
     // ── Debug server ───────────────────────────────────────────────────────
     DebugTick,
@@ -153,6 +167,9 @@ pub struct FluidApp {
 
     // ── Simulation state (DEC-006 Tier 0) ─────────────────────────────────
     sim_state: SimState,
+
+    // ── Material preset database (C8-Assets) ──────────────────────────────
+    preset_db: PresetDb,
 }
 
 impl FluidApp {
@@ -177,6 +194,7 @@ impl FluidApp {
             menu_open: None,
             current_path: None,
             sim_state: SimState::default(),
+            preset_db: PresetDb::load(),
         };
 
         (app, Task::none())
@@ -378,6 +396,78 @@ impl FluidApp {
                 }
             }
 
+            // ── Import ──────────────────────────────────────────────────────
+            AppMessage::ImportFileDialog => {
+                self.menu_open = None;
+                return Task::future(async {
+                    let handle = rfd::AsyncFileDialog::new()
+                        .add_filter("glTF", &["gltf", "glb"])
+                        .add_filter("All supported", &["gltf", "glb", "obj", "stl"])
+                        .pick_file()
+                        .await;
+                    match handle {
+                        Some(h) => AppMessage::ImportFile(h.path().to_path_buf()),
+                        None    => AppMessage::Noop,
+                    }
+                });
+            }
+            AppMessage::ImportFile(path) => {
+                if self.scene.is_none() {
+                    self.scene = Some(Scene::new());
+                }
+                match crate::import::import_file(&path) {
+                    Ok(meshes) => {
+                        let count = meshes.len();
+                        for mesh in meshes {
+                            let cmd = crate::scene::command::SpawnEntityCmd::new(&mesh.name);
+                            if let Some(scene) = self.scene.as_mut() {
+                                let _ = self.command_history.execute(cmd, scene);
+                                // Set position on the freshly-spawned entity.
+                                if let Some(e) = scene.root_entities().last().copied() {
+                                    scene.set_position(e, mesh.translation);
+                                }
+                            }
+                        }
+                        log::info!("Imported {count} mesh(es) from {:?}", path);
+                    }
+                    Err(e) => log::error!("Import failed: {e}"),
+                }
+            }
+
+            // ── Presets ────────────────────────────────────────────────────
+            AppMessage::LoadPreset(preset_name) => {
+                if let Some(preset) = self.preset_db.get(&preset_name) {
+                    log::info!(
+                        "Applied preset \"{}\" (material={}, density={} kg/m³) to {:?}",
+                        preset.name, preset.material, preset.density, self.selected_entity
+                    );
+                    // Full sim-parameter propagation is C8-SimBridge follow-up.
+                    // For session 7 we log the application and mark the scene dirty.
+                    if let Some(scene) = self.scene.as_mut() {
+                        scene.mark_dirty();
+                    }
+                } else {
+                    log::warn!("LoadPreset: unknown preset {:?}", preset_name);
+                }
+            }
+
+            // ── Scene outliner ───────────────────────────────────────────────
+            AppMessage::SpawnEntity => {
+                if self.scene.is_none() {
+                    self.scene = Some(Scene::new());
+                }
+                let name = format!(
+                    "Object {}",
+                    self.scene.as_ref().map(|s| s.root_entities().len()).unwrap_or(0) + 1
+                );
+                let cmd = crate::scene::command::SpawnEntityCmd::new(name);
+                if let Some(scene) = self.scene.as_mut() {
+                    if let Err(e) = self.command_history.execute(cmd, scene) {
+                        log::warn!("SpawnEntity failed: {e}");
+                    }
+                }
+            }
+
             // ── Debug tick ────────────────────────────────────────────────
             AppMessage::DebugTick => {
                 self.frame += 1;
@@ -452,10 +542,29 @@ impl FluidApp {
     /// DEC-017: Future file-watcher subscription MUST use
     /// `Subscription::run + stream::channel` — NOT bare threads.
     pub fn subscription(&self) -> Subscription<AppMessage> {
-        // Tick every 100 ms to refresh the debug state snapshot.
-        // iced::time::every requires the `tokio` (or `smol`) feature (added in Cargo.toml).
-        iced::time::every(std::time::Duration::from_millis(100))
-            .map(|_instant| AppMessage::DebugTick)
+        // Debug-tick every 100 ms.
+        let tick = iced::time::every(std::time::Duration::from_millis(100))
+            .map(|_| AppMessage::DebugTick);
+
+        // Keyboard shortcuts (DEC-001 iced 0.13 API).
+        let keys = keyboard::on_key_press(|key, modifiers| {
+            use keyboard::Key;
+            if modifiers.command() {
+                match key.as_ref() {
+                    Key::Character("z") if modifiers.shift() => Some(AppMessage::Redo),
+                    Key::Character("z") => Some(AppMessage::Undo),
+                    Key::Character("y") => Some(AppMessage::Redo),
+                    Key::Character("n") => Some(AppMessage::NewScene),
+                    Key::Character("o") => Some(AppMessage::OpenFileDialog),
+                    Key::Character("s") => Some(AppMessage::SaveFileDialog),
+                    _ => None,
+                }
+            } else {
+                None
+            }
+        });
+
+        Subscription::batch([tick, keys])
     }
 
     // ── private view helpers ─────────────────────────────────────────────
@@ -494,41 +603,44 @@ impl FluidApp {
         .width(Length::Fill)
         .height(Length::Fixed(28.0));
 
-        // File dropdown overlay rendered below the bar when File is open.
-        if self.menu_open == Some(MenuTarget::File) {
-            let dropdown_bg   = Color::from_rgb8(0x1a, 0x1a, 0x24);
-            let border_col    = Color::from_rgb8(0x2d, 0x2d, 0x3d);
-            let hover_bg      = Color::from_rgba8(0x63, 0x66, 0xf1, 0.157_f32);
+        // ── Shared dropdown style helpers ─────────────────────────────────
+        let dropdown_bg   = Color::from_rgb8(0x1a, 0x1a, 0x24);
+        let border_col    = Color::from_rgb8(0x2d, 0x2d, 0x3d);
+        let hover_bg      = Color::from_rgba8(0x63, 0x66, 0xf1, 0.157_f32);
+        let muted_col     = muted;
 
-            let item = |label: &'static str, msg: AppMessage| -> Element<'_, AppMessage> {
-                button(
-                    text(label).size(12).color(text_col)
-                )
+        // Helper: a normal enabled dropdown item.
+        let item = |label: &'static str, msg: AppMessage| -> Element<'_, AppMessage> {
+            button(text(label).size(12).color(text_col))
                 .width(Length::Fill)
                 .on_press(msg)
-                .style(move |_theme, status| button::Style {
+                .style(move |_t, s| button::Style {
                     background: Some(iced::Background::Color(
-                        if matches!(status, button::Status::Hovered) { hover_bg }
-                        else { Color::TRANSPARENT }
+                        if matches!(s, button::Status::Hovered) { hover_bg }
+                        else { Color::TRANSPARENT },
                     )),
                     text_color: text_col,
                     border: iced::Border::default(),
                     shadow: iced::Shadow::default(),
                 })
                 .into()
-            };
+        };
 
-            let dropdown = container(
-                column![
-                    item("New Scene",  AppMessage::NewScene),
-                    item("Open…",      AppMessage::OpenFileDialog),
-                    item("Save",       AppMessage::SaveFileDialog),
-                    item("Save As…",   AppMessage::SaveFileDialog),
-                ]
-                .spacing(1)
-                .padding([4, 0]),
-            )
-            .style(move |_theme| container::Style {
+        // Helper: a greyed-out (disabled) dropdown item.
+        let item_disabled = |label: String| -> Element<'_, AppMessage> {
+            button(text(label).size(12).color(muted_col))
+                .width(Length::Fill)
+                .style(move |_t, _s| button::Style {
+                    background: Some(iced::Background::Color(Color::TRANSPARENT)),
+                    text_color: muted_col,
+                    border: iced::Border::default(),
+                    shadow: iced::Shadow::default(),
+                })
+                .into()
+        };
+
+        fn dd_style(dropdown_bg: Color, border_col: Color) -> container::Style {
+            container::Style {
                 background: Some(iced::Background::Color(dropdown_bg)),
                 border: iced::Border {
                     color: border_col,
@@ -536,13 +648,100 @@ impl FluidApp {
                     radius: iced::border::radius(4.0),
                 },
                 ..Default::default()
-            })
-            .width(Length::Fixed(160.0));
+            }
+        }
 
-            // Stack bar + dropdown using a column (dropdown appears directly below).
+        if self.menu_open == Some(MenuTarget::File) {
+            let dropdown = container(
+                column![
+                    item("New Scene\t Ctrl+N",    AppMessage::NewScene),
+                    item("Open…\t Ctrl+O",        AppMessage::OpenFileDialog),
+                    item("Import…",               AppMessage::ImportFileDialog),
+                    item("Save\t Ctrl+S",         AppMessage::SaveFileDialog),
+                    item("Save As…",              AppMessage::SaveFileDialog),
+                ]
+                .spacing(1)
+                .padding([4, 0]),
+            )
+            .style(move |_t| dd_style(dropdown_bg, border_col))
+            .width(Length::Fixed(200.0));
+            column![
+                bar,
+                row![dropdown, horizontal_space()].padding([0, 8]),
+            ]
+            .spacing(0)
+            .into()
+        } else if self.menu_open == Some(MenuTarget::Edit) {
+            // Build undo/redo labels dynamically.
+            let undo_elem: Element<'_, AppMessage> =
+                if self.command_history.can_undo() {
+                    let label = format!(
+                        "Undo {}\t Ctrl+Z",
+                        self.command_history.peek_undo_label().unwrap_or("")
+                    );
+                    item(Box::leak(label.into_boxed_str()), AppMessage::Undo)
+                } else {
+                    item_disabled("Undo\t Ctrl+Z".to_string())
+                };
+
+            let redo_elem: Element<'_, AppMessage> =
+                if self.command_history.can_redo() {
+                    let label = format!(
+                        "Redo {}\t Ctrl+Y",
+                        self.command_history.peek_redo_label().unwrap_or("")
+                    );
+                    item(Box::leak(label.into_boxed_str()), AppMessage::Redo)
+                } else {
+                    item_disabled("Redo\t Ctrl+Y".to_string())
+                };
+
+            let dropdown = container(
+                column![undo_elem, redo_elem]
+                    .spacing(1)
+                    .padding([4, 0]),
+            )
+            .style(move |_t| dd_style(dropdown_bg, border_col))
+            .width(Length::Fixed(200.0));
+            // Edit menu sits under the second button (~56 px from left).
             column![
                 bar,
                 row![
+                    Space::with_width(56),
+                    dropdown,
+                    horizontal_space(),
+                ]
+                .padding([0, 8]),
+            ]
+            .spacing(0)
+            .into()
+        } else if self.menu_open == Some(MenuTarget::Simulation) {
+            // Build preset items from the loaded database.
+            let preset_names: Vec<&str> = self.preset_db.names();
+            let preset_elems: Vec<Element<'_, AppMessage>> = if preset_names.is_empty() {
+                vec![item_disabled("No presets loaded".to_string())]
+            } else {
+                preset_names
+                    .iter()
+                    .map(|&name| {
+                        let owned = name.to_owned();
+                        let label: &'static str = Box::leak(
+                            format!("Apply \"{}\" preset", owned).into_boxed_str()
+                        );
+                        item(label, AppMessage::LoadPreset(owned))
+                    })
+                    .collect()
+            };
+
+            let dropdown = container(
+                column(preset_elems).spacing(1).padding([4, 0]),
+            )
+            .style(move |_t| dd_style(dropdown_bg, border_col))
+            .width(Length::Fixed(200.0));
+            // Simulation sits under the third button (~115 px from left).
+            column![
+                bar,
+                row![
+                    Space::with_width(115),
                     dropdown,
                     horizontal_space(),
                 ]
@@ -669,9 +868,31 @@ impl FluidApp {
             .into()
         };
 
+        // "+" button in the outliner header — spawns a new default entity via DEC-015.
+        let spawn_btn = button(text("+").size(12).color(accent))
+            .on_press(AppMessage::SpawnEntity)
+            .padding([0, 6])
+            .style(move |_t, s| button::Style {
+                background: Some(iced::Background::Color(
+                    if matches!(s, button::Status::Hovered) {
+                        Color::from_rgba8(0x63, 0x66, 0xf1, 0.15)
+                    } else {
+                        Color::TRANSPARENT
+                    },
+                )),
+                text_color: accent,
+                border: iced::Border::default(),
+                shadow: iced::Shadow::default(),
+            });
+
         container(
             column![
-                text("Objects").size(11).color(accent),
+                row![
+                    text("Objects").size(11).color(accent),
+                    horizontal_space(),
+                    spawn_btn,
+                ]
+                .align_y(iced::Alignment::Center),
                 Space::with_height(4),
                 body,
             ]

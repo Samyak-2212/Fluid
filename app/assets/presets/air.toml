@@ -1,0 +1,14 @@
+# Fluid material preset — Air (gas, standard conditions, 20°C, 1 atm)
+# Loaded by C8-Assets preset loader (app/src/assets/mod.rs).
+# Applied to the selected entity via AppMessage::LoadPreset("air").
+
+name        = "Air"
+material    = "gas"
+# Dynamic viscosity in Pa·s (SI)
+viscosity   = 1.81e-5
+# Density in kg/m³ (at 20°C, 1 atm)
+density     = 1.204
+# Ratio of specific heats (Cp/Cv) — used by compressible CFD solver
+gamma       = 1.4
+# Speed of sound at 20°C, m/s
+speed_of_sound = 343.0

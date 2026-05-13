@@ -1,0 +1,16 @@
+# Material preset — Steel (structural, AISI 1045)
+# Loaded by C8-Assets preset loader (app/src/assets/mod.rs).
+# Applied to the selected entity via AppMessage::LoadPreset("steel").
+
+name        = "Steel"
+material    = "solid"
+# Density in kg/m³
+density     = 7850.0
+# Young's modulus in Pa
+youngs_modulus = 200.0e9
+# Poisson's ratio (dimensionless)
+poisson_ratio  = 0.29
+# Yield strength in Pa (von Mises criterion)
+yield_strength = 530.0e6
+# Thermal conductivity in W/(m·K)
+thermal_conductivity = 50.0

@@ -12,6 +12,8 @@ members = [
     "components/motion_force_simulator",
     "components/thermodynamic_simulator",
     "components/fem_structural",
+    "app",
+    "agent_debugger",
 ]
 
 [workspace.package]

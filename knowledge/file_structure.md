@@ -1,8 +1,8 @@
-<!-- version: 15 -->
+<!-- version: 16 -->
 # File Structure
 
-Last updated by: c8_session5_20260502T (C8 session 5 — ECS positions, TOML file I/O, outliner, properties)
-Reflects: app/src/scene/mod.rs (Position component), app/src/file/mod.rs (TOML save/load), app/src/app.rs (SelectEntity etc.), app/src/viewport/mod.rs (entity_positions). Merged onto version: 14.
+Last updated by: c8_session7_20260505T (C8 session 7 — Edit menu+keyboard shortcuts, glTF import, preset loader, SpawnEntityCmd, "+" outliner button)
+Reflects: app/src/import/mod.rs (glTF impl), app/src/assets/mod.rs (NEW), app/assets/presets/ (NEW), app/src/scene/command.rs (SpawnEntityCmd+DespawnEntityCmd), app/src/app.rs (Edit/Simulation menus, keyboard subscription, SpawnEntity). Merged onto version: 15.
 
 ## Root
 
@@ -67,10 +67,16 @@ All `PROMPT.md` files are Tier A only. Documentation work reads them for crate i
 | `rendering/` | dir | C3 | **complete** | wgpu init, Tier 0 CPU rasterizer, scene renderer, HTTP preview; 12 tests pass |
 | `builder/` | dir | C2 | complete | Native build UI |
 | `debugger/` | dir | C6 | **complete** | Localhost debugger surface (port 8081) |
-| `app/` | dir | C8 | **in-progress** | Fluid GUI app — Session 5: ECS positions wired, TOML file I/O, outliner buttons, properties panel; cargo check EXIT:0. |
+| `app/` | dir | C8 | **in-progress** | Fluid GUI app — Session 7: Edit menu+kb shortcuts, glTF import, presets, SpawnEntityCmd; cargo check EXIT:0. |
 | `app/src/scene/mod.rs` | file | C8 | **active** | Position component, get/set_position, entity_positions, mark_dirty |
-| `app/src/file/mod.rs` | file | C8 | **active** | FluidEnvelope + EntitySnapshot TOML save/load (2 unit tests) |
-| `app/src/app.rs` | file | C8 | **active** | SelectEntity/RenameEntity/MoveEntity/SaveFile/OpenFile; outliner buttons; properties panel |
+| `app/src/scene/command.rs` | file | C8 | **active** | RenameEntityCmd, MoveEntityCmd, SpawnEntityCmd, DespawnEntityCmd (DEC-015) |
+| `app/src/file/mod.rs` | file | C8 | **active** | FluidEnvelope + EntitySnapshot MessagePack save/load (DEC-004/011) |
+| `app/src/import/mod.rs` | file | C8 | **active** | glTF/GLB import via gltf crate; OBJ/STL/FBX stubs |
+| `app/src/assets/mod.rs` | file | C8 | **NEW** | MaterialPreset + PresetDb — loads *.toml from app/assets/presets/ at startup |
+| `app/assets/presets/water.toml` | file | C8 | **NEW** | Water material preset (liquid, 1000 kg/m³, 0.001 Pa·s) |
+| `app/assets/presets/air.toml` | file | C8 | **NEW** | Air material preset (gas, 1.204 kg/m³, 1.81e-5 Pa·s) |
+| `app/assets/presets/steel.toml` | file | C8 | **NEW** | Steel material preset (solid, 7850 kg/m³, 200 GPa) |
+| `app/src/app.rs` | file | C8 | **active** | Edit menu (Undo/Redo+greyout), Ctrl+Z/Y/N/O/S keyboard sub, ImportFileDialog, LoadPreset, SpawnEntity, "+" outliner btn |
 | `app/src/viewport/camera.rs` | file | C8 | **active** | Orbit camera: spherical coords, view_proj(), orbit/pan/zoom methods |
 | `app/src/viewport/pipeline.rs` | file | C8 | **active** | [NEEDS_REVIEW: claude] ViewportPipelineState: wgpu LineList grid + PointList entity pipelines |
 | `app/src/viewport/mod.rs` | file | C8 | **active** | [NEEDS_REVIEW: claude] ViewportProgram+ViewportPrimitive with real ECS entity_positions |
@@ -142,9 +148,11 @@ All `PROMPT.md` files are Tier A only. Documentation work reads them for crate i
 | `pack/c5_scaffold_20260429T213456Z/` | dir | C5 | active | C5 scaffold session context |
 | `pack/c5_impl_20260429T214423Z/` | dir | C5 | active | C5 implementation checkpoint (soft retire) |
 | `pack/c5_complete_20260430T064800Z/` | dir | C5 | active | C5 gate-verified completion pack |
-| `pack/c8/` | dir | C8 | **active** | C8 session pack dir (LATEST.md updated session 5) |
+| `pack/c8/` | dir | C8 | **active** | C8 session pack dir (LATEST.md updated session 7) |
 | `pack/c8_session4_20260502T/` | dir | C8 | active | C8 session 4 pack |
 | `pack/c8_session5_20260502T/` | dir | C8 | active | C8 session 5 pack (context.md) |
+| `pack/c8_session6_20260502T/` | dir | C8 | active | C8 session 6 pack (context.md) |
+| `pack/c8_session7_20260505T/` | dir | C8 | **NEW** | C8 session 7 pack (context.md) |
 | `pack/c9/` | dir | C9 | **active** | C9 session pack dir (LATEST.md + MANIFEST.md) |
 
 ## knowledge_b/

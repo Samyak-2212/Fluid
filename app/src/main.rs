@@ -11,6 +11,7 @@
 use std::sync::{Arc, RwLock};
 
 mod app;
+mod assets;
 mod debug_server;
 mod file;
 mod import;
