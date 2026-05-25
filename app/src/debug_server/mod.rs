@@ -261,7 +261,7 @@ impl DebugServer {
                                 };
                                 self.pending_controls
                                     .write()
-                                    .unwrap()
+                                    .expect("pending_controls RwLock poisoned")
                                     .push(pending_control);
                                 let _ = request.respond(json_response(
                                     json!({"ok": true}).to_string(),
@@ -282,7 +282,12 @@ impl DebugServer {
                     // ── GET /logs ────────────────────────────────────────────
                     (Method::Get, "/logs") => {
                         // Reuses C6 log format — reads active log file if present.
-                        let log_path = "debugger/logs/active/app.log";
+                        // Resolve log path relative to the executable directory,
+                        // not the CWD, so the server works regardless of launch directory.
+                        let log_path = std::env::current_exe()
+                            .ok()
+                            .and_then(|p| p.parent().map(|d| d.join("../../../debugger/logs/active/app.log")))
+                            .unwrap_or_else(|| std::path::PathBuf::from("debugger/logs/active/app.log"));
                         let lines: Vec<String> =
                             std::fs::read_to_string(log_path)
                                 .unwrap_or_default()

@@ -95,3 +95,23 @@ impl SimState {
 pub struct SimBridge {
     pub active_tier: Option<SimTier>,
 }
+
+// ── SimParameters component ───────────────────────────────────────────────────
+
+/// ECS component that stores the active simulation material parameters for an
+/// entity, set when the user applies a material preset via `LoadPreset`.
+///
+/// Stored in the `WorldAny` ECS store via `insert_erased` so that downstream
+/// physics integrators can read them without a direct dependency on `app/`.
+///
+/// C8-SimBridge: this is the first real data path from UI → ECS.
+/// Full physics propagation (reading these values in physics_core) is a future session.
+#[derive(Debug, Clone)]
+pub struct SimParameters {
+    /// Dynamic viscosity in Pa·s (0.0 for solids).
+    pub viscosity: f64,
+    /// Material density in kg/m³.
+    pub density: f64,
+    /// Human-readable material class: "liquid", "gas", or "solid".
+    pub material: String,
+}

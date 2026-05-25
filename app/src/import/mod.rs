@@ -1,7 +1,9 @@
 //! Asset import pipeline — glTF/OBJ/STL/FBX (DEC-003).
 //!
 //! glTF/GLB: implemented via the `gltf` crate.
-//! OBJ/STL/FBX: stubs — C8-Import sub-coordinator follow-up.
+//! OBJ:      implemented via `tobj`.
+//! STL:      implemented via `stl_io`.
+//! FBX:      stub — maturity concerns (see DEC-003 and research_dump/_INDEX.md).
 //! STEP (ISO 10303) deferred to v2 (DEC-014).
 
 use std::path::Path;
@@ -50,8 +52,7 @@ pub struct ImportedMesh {
 /// Loads a glTF 2.0 or GLB file and returns one [`ImportedMesh`] per mesh node.
 ///
 /// Only the node name and translation component of the local transform are
-/// extracted this session. Rotation, scale, and actual vertex data are
-/// C8-Viewport follow-up.
+/// extracted. Rotation, scale, and actual vertex data are C8-Viewport follow-up.
 pub fn import_gltf(path: &Path) -> Result<Vec<ImportedMesh>, Box<dyn std::error::Error>> {
     let (doc, _buffers, _images) = gltf::import(path)?;
 
@@ -82,16 +83,76 @@ pub fn import_gltf(path: &Path) -> Result<Vec<ImportedMesh>, Box<dyn std::error:
     Ok(meshes)
 }
 
+// ── OBJ import ────────────────────────────────────────────────────────────────
+
+/// Loads a Wavefront OBJ file and returns one [`ImportedMesh`] per model.
+///
+/// Uses `tobj` with `GPU_LOAD_OPTIONS` (triangulates and deduplicates vertices).
+/// OBJ has no node transform; all meshes originate at `[0.0, 0.0, 0.0]`.
+/// The app layer spreads co-located meshes along X so they are individually
+/// visible in the 3D viewport.
+pub fn import_obj(path: &Path) -> Result<Vec<ImportedMesh>, Box<dyn std::error::Error>> {
+    let (models, _materials) = tobj::load_obj(
+        path,
+        &tobj::GPU_LOAD_OPTIONS,
+    )?;
+
+    let mut meshes = Vec::new();
+    for (index, model) in models.iter().enumerate() {
+        let name = if model.name.is_empty() {
+            format!("OBJ_Mesh_{index}")
+        } else {
+            model.name.clone()
+        };
+        // OBJ files have no node-level transforms; place at origin.
+        // The ImportFile handler spreads these if they all land at origin.
+        meshes.push(ImportedMesh { name, translation: [0.0, 0.0, 0.0] });
+    }
+
+    if meshes.is_empty() {
+        log::warn!("import_obj: {:?} contained no models", path);
+    }
+
+    Ok(meshes)
+}
+
+// ── STL import ────────────────────────────────────────────────────────────────
+
+/// Loads an STL file (ASCII or binary) and returns a single [`ImportedMesh`].
+///
+/// STL has no node hierarchy, no named objects, and no transforms.
+/// A single mesh named after the file stem is returned at the origin.
+pub fn import_stl(path: &Path) -> Result<Vec<ImportedMesh>, Box<dyn std::error::Error>> {
+    let mut file = std::fs::OpenOptions::new().read(true).open(path)?;
+    let stl = stl_io::read_stl(&mut file)?;
+
+    let name = path
+        .file_stem()
+        .and_then(|s| s.to_str())
+        .unwrap_or("STL_Mesh")
+        .to_owned();
+
+    let triangle_count = stl.faces.len();
+    if triangle_count == 0 {
+        log::warn!("import_stl: {:?} contained no triangles", path);
+        return Ok(vec![]);
+    }
+
+    log::info!("import_stl: {:?} — {} triangles", path, triangle_count);
+    Ok(vec![ImportedMesh { name, translation: [0.0, 0.0, 0.0] }])
+}
+
 // ── Dispatch entry-point ─────────────────────────────────────────────────────
 
 /// Imports a file, dispatching to the per-format implementation.
 ///
-/// OBJ/STL/FBX return a stub error until C8-Import follow-up sessions.
+/// FBX returns a stub error until C8-Import follow-up sessions.
 pub fn import_file(path: &Path) -> Result<Vec<ImportedMesh>, Box<dyn std::error::Error>> {
     match ImportFormat::from_path(path) {
         Some(ImportFormat::GlTF) => import_gltf(path),
-        Some(fmt) => Err(format!("{fmt:?} import not yet implemented (C8-Import follow-up)").into()),
+        Some(ImportFormat::Obj)  => import_obj(path),
+        Some(ImportFormat::Stl)  => import_stl(path),
+        Some(ImportFormat::Fbx)  => Err("FBX import not yet implemented (fbxcel-dom maturity concerns — see DEC-003)".into()),
         None => Err(format!("unrecognised file extension: {:?}", path.extension()).into()),
     }
 }
-

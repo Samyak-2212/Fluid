@@ -1,8 +1,8 @@
-<!-- version: 16 -->
+<!-- version: 17 -->
 # File Structure
 
-Last updated by: c8_session7_20260505T (C8 session 7 — Edit menu+keyboard shortcuts, glTF import, preset loader, SpawnEntityCmd, "+" outliner button)
-Reflects: app/src/import/mod.rs (glTF impl), app/src/assets/mod.rs (NEW), app/assets/presets/ (NEW), app/src/scene/command.rs (SpawnEntityCmd+DespawnEntityCmd), app/src/app.rs (Edit/Simulation menus, keyboard subscription, SpawnEntity). Merged onto version: 15.
+Last updated by: c8_session8_20260521T (C8 session 8 — status bar sim state, Delete key entity, autosave, OBJ import via tobj, SimParameters ECS wiring)
+Reflects: app/src/app.rs (session 8 priorities), app/src/import/mod.rs (OBJ import), app/src/sim_bridge/mod.rs (SimParameters). Merged onto version: 16.
 
 ## Root
 
@@ -31,7 +31,7 @@ All files in `knowledge/` are Tier A authored and maintained. Files carry a `<!-
 | `knowledge/dependency_graph.md` | file | Root | active | version: 2 |
 | `knowledge/model_tier_policy.md` | file | Root | active | version: 1 |
 | `knowledge/config_schema.md` | file | Root | active | version: 4 |
-| `knowledge/file_structure.md` | file | Root/C2/C5/C8 | active | This file version: 15 |
+| `knowledge/file_structure.md` | file | Root/C2/C5/C8 | active | This file version: 17 |
 | `knowledge/project_manifest.md` | file | Root | active | version: 29, C8 session 5 complete |
 
 ## bug_pool/
@@ -67,19 +67,20 @@ All `PROMPT.md` files are Tier A only. Documentation work reads them for crate i
 | `rendering/` | dir | C3 | **complete** | wgpu init, Tier 0 CPU rasterizer, scene renderer, HTTP preview; 12 tests pass |
 | `builder/` | dir | C2 | complete | Native build UI |
 | `debugger/` | dir | C6 | **complete** | Localhost debugger surface (port 8081) |
-| `app/` | dir | C8 | **in-progress** | Fluid GUI app — Session 7: Edit menu+kb shortcuts, glTF import, presets, SpawnEntityCmd; cargo check EXIT:0. |
+| `app/` | dir | C8 | **in-progress** | Fluid GUI app — Session 8: status bar, Delete key, autosave, OBJ import, SimParameters ECS; cargo check EXIT:0, 26 warnings. |
 | `app/src/scene/mod.rs` | file | C8 | **active** | Position component, get/set_position, entity_positions, mark_dirty |
 | `app/src/scene/command.rs` | file | C8 | **active** | RenameEntityCmd, MoveEntityCmd, SpawnEntityCmd, DespawnEntityCmd (DEC-015) |
 | `app/src/file/mod.rs` | file | C8 | **active** | FluidEnvelope + EntitySnapshot MessagePack save/load (DEC-004/011) |
-| `app/src/import/mod.rs` | file | C8 | **active** | glTF/GLB import via gltf crate; OBJ/STL/FBX stubs |
+| `app/src/import/mod.rs` | file | C8 | **active** | glTF/GLB + OBJ import wired (tobj); STL/FBX stubs |
 | `app/src/assets/mod.rs` | file | C8 | **NEW** | MaterialPreset + PresetDb — loads *.toml from app/assets/presets/ at startup |
 | `app/assets/presets/water.toml` | file | C8 | **NEW** | Water material preset (liquid, 1000 kg/m³, 0.001 Pa·s) |
 | `app/assets/presets/air.toml` | file | C8 | **NEW** | Air material preset (gas, 1.204 kg/m³, 1.81e-5 Pa·s) |
 | `app/assets/presets/steel.toml` | file | C8 | **NEW** | Steel material preset (solid, 7850 kg/m³, 200 GPa) |
-| `app/src/app.rs` | file | C8 | **active** | Edit menu (Undo/Redo+greyout), Ctrl+Z/Y/N/O/S keyboard sub, ImportFileDialog, LoadPreset, SpawnEntity, "+" outliner btn |
+| `app/src/app.rs` | file | C8 | **active** | Session 8: status bar sim state+entity count, Delete key → DespawnEntityCmd, autosave subscription, OBJ dialog filter, LoadPreset→ECS wiring |
 | `app/src/viewport/camera.rs` | file | C8 | **active** | Orbit camera: spherical coords, view_proj(), orbit/pan/zoom methods |
 | `app/src/viewport/pipeline.rs` | file | C8 | **active** | [NEEDS_REVIEW: claude] ViewportPipelineState: wgpu LineList grid + PointList entity pipelines |
 | `app/src/viewport/mod.rs` | file | C8 | **active** | [NEEDS_REVIEW: claude] ViewportProgram+ViewportPrimitive with real ECS entity_positions |
+| `app/src/sim_bridge/mod.rs` | file | C8 | **active** | SimState, SimBridge, SimParameters (ECS component for UI→ECS preset data path) |
 | `agent_debugger/` | dir | C9 | **complete** | Agent test harness — 8 subcommands, integration tests pass (Windows headless) |
 | `components/fluid_simulator/` | dir | C5 | **implemented** | SPH (Wendland C2 + XSPH + Leap-Frog) + CFD (Chorin projection) + GPU FFI trait |
 | `components/aerodynamic_simulator/` | dir | C5 | **implemented** | Thin-aerofoil lift/drag model (C_L, C_D polar) |
@@ -152,7 +153,8 @@ All `PROMPT.md` files are Tier A only. Documentation work reads them for crate i
 | `pack/c8_session4_20260502T/` | dir | C8 | active | C8 session 4 pack |
 | `pack/c8_session5_20260502T/` | dir | C8 | active | C8 session 5 pack (context.md) |
 | `pack/c8_session6_20260502T/` | dir | C8 | active | C8 session 6 pack (context.md) |
-| `pack/c8_session7_20260505T/` | dir | C8 | **NEW** | C8 session 7 pack (context.md) |
+| `pack/c8_session7_20260505T/` | dir | C8 | active | C8 session 7 pack (context.md) |
+| `pack/c8_session8_20260521T/` | dir | C8 | **NEW** | C8 session 8 pack (context.md) |
 | `pack/c9/` | dir | C9 | **active** | C9 session pack dir (LATEST.md + MANIFEST.md) |
 
 ## knowledge_b/

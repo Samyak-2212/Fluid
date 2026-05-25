@@ -61,7 +61,7 @@ bytemuck = { version = "1", features = ["derive"] }
 gltf = { version = "1" }
 
 # OBJ import
-tobj = { version = "4", features = ["async"] }
+tobj = { version = "4" }
 
 # STL import
 stl_io = { version = "0.7" }
